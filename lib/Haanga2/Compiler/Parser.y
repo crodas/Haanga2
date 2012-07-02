@@ -86,13 +86,13 @@ body(A) ::= body(B) code(C) . { B[] = C; A = B; }
 body(A) ::= . { A = array(); }
 
 // for loop {{{
-code(A) ::= T_FOR for_dest(X) T_IN for_source(C) body(Z) for_end. { A = new Term\For(X, C, Z); }
+code(A) ::= T_FOR for_dest(X) T_IN for_source(C) body(Y) for_end(Z). { A = new Term\For(X, C, Y, Z); }
 for_source(A) ::= term(B) . { A = B; }
 for_source(A) ::= T_LPARENT expr(B) T_RPARENT . { A = B; }
 for_dest(A) ::= variable(X) . { A = array(X); }
 for_dest(A) ::= variable(X) T_COMMA variable(Y) . { A = array(Y, X); }
-for_end     ::= T_END .
-for_end     ::= T_ENDFOR .
+for_end     ::= T_EMPTY body(X) T_END|T_ENDFOR . { A = X; }
+for_end     ::= T_END|T_ENDFOR .
 // }}}
 
 // if {{{
@@ -102,10 +102,17 @@ if_end(A) ::= T_ELSE body(X) T_END|T_ENDIF . { A = X; }
 if_end  ::= T_END|T_ENDIF . 
 // }}}
 
+code(A) ::= T_TAG(B) arguments_list(C)  . { A = new Tag(B, C); }
+code(A) ::= T_TAG_BLOCK(B) arguments_list(C) body(Y) T_END . { A = new Tag(B, C, Y); }
+
+// set {{{
+code(A) ::= T_SET variable(B) T_EQ expr(C) . { A = new DefVariable(B, C); }
+// }}}
+
 // variable {{{
-variable(A) ::= T_ALPHA(B) . { A = new Variable(B); }
-variable(A) ::= T_DOLLAR T_ALPHA(B) . { A = new Variable(B, 'object'); }
-variable(A) ::= T_AT T_ALPHA(B) . { A = new Variable(B, 'array'); }
+variable(A) ::= alpha(B) . { A = new Variable(B); }
+variable(A) ::= T_DOLLAR alpha(B) . { A = new Variable(B, 'object'); }
+variable(A) ::= T_AT alpha(B) . { A = new Variable(B, 'array'); }
 variable(A) ::= variable(B) T_DOT|T_OBJ variable(C) . { B->addPart(C, 'object'); A = B; }
 variable(A) ::= variable(B) T_BRACKETS_OPEN expr(C) T_BRACKETS_CLOSE . { B->addPart(C, 'array'); A = B ; }
 // }}} 
@@ -125,20 +132,33 @@ expr(A) ::= term(B) . { A = B; }
 // }}}
 
 // term  {{{
-term(A) ::= term(B) T_FILTER_PIPE filter(X) . { A = new Term\Filter(B, X); }
-term(A) ::= variable(B) . { A = B; }
-term(A) ::= T_NUMBER(B) . { A = new Term\Number(B); }
-term(A) ::= T_STRING(B) . { A = new Term\String(B) ; }
+term(A) ::= term_simple(B) T_FILTER_PIPE filters(X) . { A = new Term\Filter(B, X); }
+term(A) ::= term_simple(B) . { A = B; }
+term_simple(A) ::= variable(B) . { A = B; }
+term_simple(A) ::= T_NUMBER(B) . { A = new Term\Number(B); }
+term_simple(A) ::= T_STRING(B) . { A = new Term\String(B) ; }
+
+alpha(A) ::= T_ALPHA(X) . { A = X; }
 // }}}
 
-// term filter {{{
-filter(A) ::= T_ALPHA(B) arguments(C) . { A = new Filter(B, C); }
+// term filter (nested) {{{ 
+filters(A) ::= filters(B) T_FILTER_PIPE filter(C) . { A = B; A[] = C; }
+filters(A) ::= filter(B) . { A = array(B); }
+filter(A) ::= alpha(B) arguments(C) . { A = new Filter(B, C); }
 // }}}
 
 // function arguments {{{
+arguments_list    ::= .
+arguments_list(A) ::= T_LPARENT args(X) T_RPARENT . { A = X; }
+arguments_list(A) ::= term_list(B) . { A = B; }
+term_list(A) ::= term_list(B) term_simple(C) . { A = B; A[] = C; }
+term_list(A) ::= term_simple(B) . { A = array(B); }/**/
+
 arguments(A) ::= . { A = array(); }
-arguments(A) ::= T_COLON term(B)  . { A = array(B); }
+arguments(A) ::= T_COLON term_simple(B)  . { A = array(B); }
 arguments(A) ::= T_LPARENT args(X) T_RPARENT . { A = X; }
+
 args(A) ::= args(B) T_COMMA args(C) . { A = array_merge(B, C); }
 args(A) ::= expr(B)  . { A = array(B); }
 // }}}
+
