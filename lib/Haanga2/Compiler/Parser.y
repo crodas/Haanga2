@@ -92,6 +92,13 @@ for_end     ::= T_END .
 for_end     ::= T_ENDFOR .
 // }}}
 
+// if {{{
+code(A) ::= T_IF expr(B) body(C) if_end(X). { A = new Code\opIf(B, C, X); }
+if_end(A) ::= T_ELIF expr(B) body(C) if_end(X) . { A = new Code\opIf(B, C, X); }
+if_end(A) ::= T_ELSE body(X) T_END|T_ENDIF . { A = X; }
+if_end  ::= T_END|T_ENDIF . 
+// }}}
+
 // variable {{{
 variable(A) ::= T_ALPHA(B) . { A = new Variable(B); }
 variable(A) ::= T_DOLLAR T_ALPHA(B) . { A = new Variable(B, 'object'); }
