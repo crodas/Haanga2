@@ -1,0 +1,23 @@
+{
+    "hash": "c0b7327802ae5fa4b582ffd7abd682d4",
+    "packages": [
+        {
+            "package": "crodas/Artifex",
+            "version": "dev-master",
+            "source-reference": "b2fa6c489b9c510e5cd06b055fcb4ed3405cce8c"
+        },
+        {
+            "package": "crodas/Notoj",
+            "version": "dev-master",
+            "source-reference": "a1882a6dac567a2ea20868e94c6b55ff78d02446"
+        }
+    ],
+    "packages-dev": null,
+    "aliases": [
+
+    ],
+    "minimum-stability": "dev",
+    "stability-flags": [
+
+    ]
+}
