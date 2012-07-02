@@ -2,7 +2,7 @@
 %include {
 /*
   +---------------------------------------------------------------------------------+
-  | Copyright (c) 2010 César Rodas and Menéame Comunicacions S.L.                   |
+  | Copyright (c) 2012 César Rodas and Menéame Comunicacions S.L.                   |
   +---------------------------------------------------------------------------------+
   | Redistribution and use in source and binary forms, with or without              |
   | modification, are permitted provided that the following conditions are met:     |
@@ -85,13 +85,15 @@ start ::= body(B) . { $this->body = B; }
 body(A) ::= body(B) code(C) . { B[] = C; A = B; }
 body(A) ::= . { A = array(); }
 
+code(A) ::= T_HTML(B) . { A = new HTML(B); }
+
 // for loop {{{
-code(A) ::= T_FOR for_dest(X) T_IN for_source(C) body(Y) for_end(Z). { A = new Term\For(X, C, Y, Z); }
+code(A) ::= T_FOR for_dest(X) T_IN for_source(C) body(Y) for_end(Z). { A = new Term\OpFor(X, C, Y, Z); }
 for_source(A) ::= term(B) . { A = B; }
 for_source(A) ::= T_LPARENT expr(B) T_RPARENT . { A = B; }
 for_dest(A) ::= variable(X) . { A = array(X); }
 for_dest(A) ::= variable(X) T_COMMA variable(Y) . { A = array(Y, X); }
-for_end     ::= T_EMPTY body(X) T_END|T_ENDFOR . { A = X; }
+for_end(A)  ::= T_EMPTY body(X) T_END|T_ENDFOR . { A = X; }
 for_end     ::= T_END|T_ENDFOR .
 // }}}
 
@@ -102,8 +104,10 @@ if_end(A) ::= T_ELSE body(X) T_END|T_ENDIF . { A = X; }
 if_end  ::= T_END|T_ENDIF . 
 // }}}
 
+// tags {{{
 code(A) ::= T_TAG(B) arguments_list(C)  . { A = new Tag(B, C); }
 code(A) ::= T_TAG_BLOCK(B) arguments_list(C) body(Y) T_END . { A = new Tag(B, C, Y); }
+// }}}
 
 // set {{{
 code(A) ::= T_SET variable(B) T_EQ expr(C) . { A = new DefVariable(B, C); }

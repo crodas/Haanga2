@@ -15,6 +15,10 @@ spl_autoload_register(function ($class) {
 
     // classes {{{
     static $classes = array (
+  'haanga2\\compiler\\tokenizer' => '/Compiler/Tokenizer.php',
+  'haanga2_yytoken' => '/Compiler/Parser.php',
+  'haanga2_yystackentry' => '/Compiler/Parser.php',
+  'haanga2_compiler_parser' => '/Compiler/Parser.php',
   'haanga2\\cli\\build' => '/Cli/Build.php',
   'haanga2\\cli\\compiler' => '/Cli/Compiler.php',
   'haanga2\\cli' => '/Cli.php',
