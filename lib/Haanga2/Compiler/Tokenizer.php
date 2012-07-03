@@ -44,6 +44,46 @@ class Tokenizer
     const IN_CODE  = 0x02;
     const IN_PRINT = 0x03;
 
+    protected $tokens = array(
+        'for'   => Parser::T_FOR,
+        'if'    => Parser::T_IF,
+        'elif'  => Parser::T_ELIF,
+        'else'  => Parser::T_ELSE,
+        'set'   => Parser::T_SET,
+        'in'    => Parser::T_IN,
+        'empty' => Parser::T_EMPTY,
+        'end'   => Parser::T_END,
+        'and'   => Parser::T_AND,
+        '&&'    => Parser::T_AND,
+        'or'    => Parser::T_OR,
+        'true'  => Parser::T_BOOL,
+        'false' => Parser::T_BOOL,
+        '||'    => Parser::T_OR,
+        'not'   => Parser::T_NOT,
+        '!'     => Parser::T_NOT,
+        '+'     => Parser::T_PLUS,
+        '-'     => Parser::T_MINUS,
+        '*'     => Parser::T_TIMES,
+        '/'     => Parser::T_DIV,
+        '%'     => Parser::T_MOD,
+        '=='    => Parser::T_EQ,
+        '='     => Parser::T_ASSIGN,
+        '@'     => Parser::T_AT,
+        '$'     => Parser::T_DOLLAR,
+        '('     => Parser::T_LPARENT,
+        ')'     => Parser::T_RPARENT,
+        '->'    => Parser::T_OBJ,
+        '.'     => Parser::T_DOT,
+        '<<'    => Parser::T_BITWISE,
+        '>>'    => Parser::T_BITWISE,
+        '<|'    => Parser::T_PIPE,
+        '|'     => Parser::T_FILTER_PIPE,
+        '{'     => Parser::T_CURLY_OPEN,
+        '}'     => Parser::T_CLOSE_OPEN,
+        '['     => Parser::T_BRACKETS_OPEN,
+        ']'     => Parser::T_BRACKETS_CLOSE,
+    );
+
     protected $delimiters = array(
         'tagOpen' => '{%',
         'tagClose' => '%}',
@@ -61,6 +101,7 @@ class Tokenizer
 
     public function tokenize($text)
     {
+        krsort($this->tokens);
         $tokens = array(); 
         $len    = strlen($text);
         $status = self::IN_TEXT;
@@ -77,6 +118,9 @@ class Tokenizer
                 }
                 $pos  = $pos1 > $pos2 ? $pos2 : $pos1;
                 $tokens[] = array(Parser::T_HTML, substr($text, $i, $pos - $i), $line);
+                if ($pos >= $len) {
+                    break;
+                }
                 $i = $pos;
             }
             switch ($text[$i]) {
@@ -98,16 +142,18 @@ class Tokenizer
                         $number .= $text[$i];
                         break;
                     default:
-                        if (ctype_alpha($text[$i])) {
+                        if ($i < $len && ctype_alpha($text[$i])) {
                             throw new \RuntimeException("{$number}{$text[$i]} is not a valid number");
                         }
                         break 2;
                     }
                 }
                 $tokens[] = array(Parser::T_NUMBER, $number+0, $line);
+                $i--; /* decrement because the main loop will incremt us by one */
                 break;
             // }}}
 
+            // string {{{
             case '"':
             case "'":
                 $end = $text[$i];
@@ -127,6 +173,7 @@ class Tokenizer
                 }
                 $tokens[] = array(Parser::T_STRING, $str, $line);
                 break;
+            // }}}
 
             default:
                 // search for open/close tags
@@ -145,9 +192,33 @@ class Tokenizer
                             break;
                         }
                         $i += strlen($str) - 1;
-                        continue;
+                        continue 2;
                     }
                 }
+
+                // search for the keywords
+                $foundToken = false;
+                foreach ($this->tokens as $token => $id) {
+                    if ($text[$i] > $token[0]) { 
+                        //nothing to do here
+                        break;
+                    }
+                    if (strcasecmp(substr($text, $i, strlen($token)), $token) == 0) {
+                        $i += strlen($token);
+                        if ($i < $len && ctype_alpha($text[$i])) {
+                            /* it is an alpha, somethin like trueVariable */
+                            break; 
+                        }
+                        $tokens[]   = array($id, $token, $line);
+                        $foundToken = true;
+                        $i--;
+                        break;
+                    }
+                }
+
+                if (!$foundToken) {
+                }
+                break;
             }
         }
         var_dump($tokens);exit;

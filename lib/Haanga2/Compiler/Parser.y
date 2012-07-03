@@ -110,7 +110,7 @@ code(A) ::= T_TAG_BLOCK(B) arguments_list(C) body(Y) T_END . { A = new Tag(B, C,
 // }}}
 
 // set {{{
-code(A) ::= T_SET variable(B) T_EQ expr(C) . { A = new DefVariable(B, C); }
+code(A) ::= T_SET variable(B) T_ASSIGN expr(C) . { A = new DefVariable(B, C); }
 // }}}
 
 // variable {{{
@@ -138,11 +138,24 @@ expr(A) ::= term(B) . { A = B; }
 // term  {{{
 term(A) ::= term_simple(B) T_FILTER_PIPE filters(X) . { A = new Term\Filter(B, X); }
 term(A) ::= term_simple(B) . { A = B; }
+term_simple(A) ::= json(B) . { A = new Term\Json(B); }
+term_simple(A) ::= T_BOOL(X) . { A = new Term\Boolean(X); }
 term_simple(A) ::= variable(B) . { A = B; }
 term_simple(A) ::= T_NUMBER(B) . { A = new Term\Number(B); }
 term_simple(A) ::= T_STRING(B) . { A = new Term\String(B) ; }
 
 alpha(A) ::= T_ALPHA(X) . { A = X; }
+// }}}
+
+// json {{{
+json(A) ::= T_CURLY_OPEN json_obj(B) T_CURLY_CLOSE. { A  = B; }
+json(A) ::= T_BRACKETS_OPEN json_arr(B) T_BRACKETS_CLOSE. { A = B; }
+
+json_obj(A) ::= json_obj(B) T_COMMA json_obj(C). { A = B; B[] = C; }
+json_obj(A) ::= term_simple(B) T_COLON expr(C) . { A = array('key' => B, 'value' => C); } 
+
+json_arr(X) ::= json_arr(A) T_COMMA expr(B) .  { X = A; X[] = B; }
+json_arr(A) ::= expr(B). { A = array(B); }
 // }}}
 
 // term filter (nested) {{{ 

@@ -39,6 +39,6 @@ require 'lib/Haanga2/autoload.php';
 require 'vendor/autoload.php';
 
 $c = new \Haanga2\Compiler\Tokenizer;
-$c->tokenize("cesar {{'cesar\'rodas'1.99+2.88}}xxx{% david %} rodas maldonado\nfoo{{foo}}bar");
+$c->tokenize("cesar {{'cesar\'rodas'1.99+2.88||truex}}xxx{% david %} rodas maldonado\nfoo{{foo}}bar");
 $app = new \Haanga2\Cli;
 $app->run();
