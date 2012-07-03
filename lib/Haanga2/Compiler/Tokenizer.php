@@ -108,6 +108,26 @@ class Tokenizer
                 break;
             // }}}
 
+            case '"':
+            case "'":
+                $end = $text[$i];
+                $str = "";
+                for ($i++; $i < $len; $i++) {
+                    switch ($text[$i]) {
+                    case "\\":
+                        $str .= $text[++$i];
+                        break;
+                    case "'": case '"':
+                        if ($text[$i] == $end) {
+                            break 2;
+                        }
+                    default:
+                        $str .= $text[$i];
+                    } 
+                }
+                $tokens[] = array(Parser::T_STRING, $str, $line);
+                break;
+
             default:
                 // search for open/close tags
                 foreach ($this->delimiters as $type => $str) {
