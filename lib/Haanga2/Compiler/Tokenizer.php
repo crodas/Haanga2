@@ -105,7 +105,9 @@ class Tokenizer
         $tokens = array(); 
         $len    = strlen($text);
         $status = self::IN_TEXT;
-        $line   = 0;
+        $line   = 1;
+        $parser = new \ReflectionClass('\Haanga2_Compiler_Parser');
+        $const  = $parser->getConstants();
         for($i=0; $i < $len; $i++) {
             if ($status === self::IN_TEXT) {
                 $pos1 = strpos($text, $this->delimiters['tagOpen'], $i);
@@ -117,7 +119,11 @@ class Tokenizer
                     $pos2 = $len;
                 }
                 $pos  = $pos1 > $pos2 ? $pos2 : $pos1;
-                $tokens[] = array(Parser::T_HTML, substr($text, $i, $pos - $i), $line);
+                if ($pos - $i > 0) {
+                    $html  = substr($text, $i, $pos - $i);
+                    $tokens[] = array(Parser::T_HTML, $html, $line);
+                    $line += substr_count($html, "\n");
+                }
                 if ($pos >= $len) {
                     break;
                 }
@@ -175,15 +181,30 @@ class Tokenizer
                 break;
             // }}}
 
+            // whitespaces {{{
+            case "\n":
+                $line++;
+                break; 
+
+            case ' ': case "\t": case "\r":
+                break;
+            // }}}
+
             default:
-                // search for open/close tags
+                // search for open/close tags {{{
                 foreach ($this->delimiters as $type => $str) {
                     if (substr($text, $i, strlen($str)) == $str) {
                         switch ($type) {
                         case 'tagOpen':
+                            if ($status != self::IN_TEXT) {
+                                throw new \RuntimeException("Unexpected {$str}");
+                            }
                             $status = self::IN_CODE;
                             break;
                         case 'printOpen':
+                            if ($status != self::IN_TEXT) {
+                                throw new \RuntimeException("Unexpected {$str}");
+                            }
                             $status = self::IN_PRINT;
                             break;
                         case 'tagClose':
@@ -195,6 +216,7 @@ class Tokenizer
                         continue 2;
                     }
                 }
+                // }}}
 
                 // search for the keywords
                 $foundToken = false;
@@ -204,19 +226,35 @@ class Tokenizer
                         break;
                     }
                     if (strcasecmp(substr($text, $i, strlen($token)), $token) == 0) {
-                        $i += strlen($token);
-                        if ($i < $len && ctype_alpha($text[$i])) {
+                        $e = $i + strlen($token);
+                        if ($e < $len && ctype_alpha($token) && ctype_alpha($text[$e])) {
                             /* it is an alpha, somethin like trueVariable */
                             break; 
                         }
                         $tokens[]   = array($id, $token, $line);
                         $foundToken = true;
-                        $i--;
+                        $i = $e - 1;
                         break;
                     }
                 }
 
                 if (!$foundToken) {
+                    preg_match('/^[a-z_][a-z0-9_]*/', substr($text, $i), $matches);
+                    if (empty($matches)) {
+                        throw new \RuntimeException("cannot tokenize: ". substr($text, $i, 1));
+                    }
+                    if (strncmp($matches[0], 'end', 3) === 0) {
+                        $name = strtoupper(substr($matches[0], 3));
+                        $type = Parser::T_ALPHA;
+                        if (isset($const['T_END' . $name])) {
+                            $type = $const['T_END' . $name];
+                        }
+
+                        $tokens[] = array($type, $matches[0], $line);
+                    } else {
+                        $tokens[] = array(Parser::T_ALPHA, $matches[0], $line);
+                    }
+                    $i += strlen($matches[0])-1;
                 }
                 break;
             }
