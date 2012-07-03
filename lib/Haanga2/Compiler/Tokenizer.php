@@ -146,6 +146,7 @@ class Tokenizer
                             throw new \RuntimeException("Invalid number at line {$line}");
                         }
                         $number .= $text[$i];
+                        $hasDot  = true;
                         break;
                     default:
                         if ($i < $len && ctype_alpha($text[$i])) {

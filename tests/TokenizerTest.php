@@ -36,4 +36,54 @@ EOF;
         $this->assertEquals(array(Parser::T_ENDFOR, "endfor", 2), $tokens[13]);
         $this->assertEquals(array(Parser::T_HTML, " something else", 6), $tokens[14]);
     }
+
+    /**
+     *  @expectedException \RuntimeException
+     */
+    public function testTokenizerException1()
+    {
+        $code = "{{1.99.99}}";
+        $tokenizer = new \Haanga2\Compiler\Tokenizer;
+        $tokens    = $tokenizer->tokenize($code);
+    }
+
+    /**
+     *  @expectedException \RuntimeException
+     */
+    public function testTokenizerException2()
+    {
+        $code = "{{variableña}}";
+        $tokenizer = new \Haanga2\Compiler\Tokenizer;
+        $tokens    = $tokenizer->tokenize($code);
+    }
+
+    /**
+     *  @expectedException \RuntimeException
+     */
+    public function testTokenizerException3()
+    {
+        $code = "{{ {% }}";
+        $tokenizer = new \Haanga2\Compiler\Tokenizer;
+        $tokens    = $tokenizer->tokenize($code);
+    }
+
+    /**
+     *  @expectedException \RuntimeException
+     */
+    public function testTokenizerException4()
+    {
+        $code = "{% {{ }} %}";
+        $tokenizer = new \Haanga2\Compiler\Tokenizer;
+        $tokens    = $tokenizer->tokenize($code);
+    }
+
+    /**
+     *  @expectedException \RuntimeException
+     */
+    public function testTokenizerException5()
+    {
+        $code = "{{99foobar}}";
+        $tokenizer = new \Haanga2\Compiler\Tokenizer;
+        $tokens    = $tokenizer->tokenize($code);
+    }
 }
