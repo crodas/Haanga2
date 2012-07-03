@@ -79,7 +79,7 @@ class Tokenizer
         '<|'    => Parser::T_PIPE,
         '|'     => Parser::T_FILTER_PIPE,
         '{'     => Parser::T_CURLY_OPEN,
-        '}'     => Parser::T_CLOSE_OPEN,
+        '}'     => Parser::T_CURLY_OPEN,
         '['     => Parser::T_BRACKETS_OPEN,
         ']'     => Parser::T_BRACKETS_CLOSE,
     );
@@ -221,6 +221,7 @@ class Tokenizer
                 break;
             }
         }
-        var_dump($tokens);exit;
+
+        return $tokens;
     }
 }
