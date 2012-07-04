@@ -59,7 +59,7 @@ class Escape
      *
      *  Borrowed from Twig.
      */
-    public function escapeJS(Compiler $compiler,  $input, Variable $output)
+    public function escapeJS(Compiler $compiler,  $input, $output)
     {
         $__output__ = preg_replace_callback('#[^a-zA-Z0-9,\._]#Su', function() {
             $char = $matches[0];
