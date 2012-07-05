@@ -84,12 +84,25 @@ class Tokenizer
         ']'     => Parser::T_BRACKETS_CLOSE,
     );
 
+    protected $tags = array();
+
     protected $delimiters = array(
         'tagOpen' => '{%',
         'tagClose' => '%}',
         'printOpen' => '{{',
         'printClose' => '}}',
     );
+
+    public function registerTag($name, $block)
+    {
+        if (isset($this->tags[$name])) {
+            throw new \RuntimeException("Traing to register {$name} tag but it already exists");
+        }
+        if (isset($this->tokens[$name]) && !preg_match('/^[a-z_][a-z0-9_]*/', $name)) {
+            throw new \RuntimeException("{$name} is not a valid tag name");
+        }
+        $this->tags[$name] = $block ? Parser::T_TAG_BLOCK : Parser::T_TAG;
+    }
 
     public function tokenizeFile($file)
     {
@@ -102,12 +115,13 @@ class Tokenizer
     public function tokenize($text)
     {
         krsort($this->tokens);
-        $tokens = array(); 
-        $len    = strlen($text);
-        $status = self::IN_TEXT;
-        $line   = 1;
-        $parser = new \ReflectionClass('\Haanga2_Compiler_Parser');
-        $const  = $parser->getConstants();
+        $tokens   = array(); 
+        $len      = strlen($text);
+        $status   = self::IN_TEXT;
+        $line     = 1;
+        $parser   = new \ReflectionClass('\Haanga2_Compiler_Parser');
+        $const    = $parser->getConstants();
+        $tagFirst = false;
         for($i=0; $i < $len; $i++) {
             if ($status === self::IN_TEXT) {
                 $pos1 = strpos($text, $this->delimiters['tagOpen'], $i);
@@ -185,10 +199,8 @@ class Tokenizer
             // whitespaces {{{
             case "\n":
                 $line++;
-                break; 
-
             case ' ': case "\t": case "\r":
-                break;
+                continue 2;
             // }}}
 
             default:
@@ -201,6 +213,7 @@ class Tokenizer
                                 throw new \RuntimeException("Unexpected {$str}");
                             }
                             $status = self::IN_CODE;
+                            $tagFirst = true;
                             break;
                         case 'printOpen':
                             if ($status != self::IN_TEXT) {
@@ -214,12 +227,12 @@ class Tokenizer
                             break;
                         }
                         $i += strlen($str) - 1;
-                        continue 2;
+                        continue 3;
                     }
                 }
                 // }}}
 
-                // search for the keywords
+                // search for the keywords {{{
                 $foundToken = false;
                 foreach ($this->tokens as $token => $id) {
                     if ($text[$i] > $token[0]) { 
@@ -238,18 +251,23 @@ class Tokenizer
                         break;
                     }
                 }
+                // }}}
 
                 if (!$foundToken) {
                     preg_match('/^[a-z_][a-z0-9_]*/', substr($text, $i), $matches);
                     if (empty($matches)) {
                         throw new \RuntimeException("cannot tokenize: ". substr($text, $i, 1));
                     }
-                    if (strncmp($matches[0], 'end', 3) === 0) {
-                        $name = strtoupper(substr($matches[0], 3));
+                    if ($tagFirst && isset($this->tags[$matches[0]])) {
+                        $tokens[] = array($this->tags[$matches[0]], $matches[0], $line);
+                    } else if (strncmp($matches[0], 'end', 3) === 0) {
+                        $name = substr($matches[0], 3);
                         $type = Parser::T_ALPHA;
-                        if (isset($const['T_END' . $name])) {
-                            $type = $const['T_END' . $name];
-                        }
+                        if (isset($const['T_END' . strtoupper($name)])) {
+                            $type = $const['T_END' . strtoupper($name)];
+                        } else if (isset($this->tags[$name]) && $this->tags[$name] == Parser::T_TAG_BLOCK) {
+                            $type = Parser::T_END;
+                        } 
 
                         $tokens[] = array($type, $matches[0], $line);
                     } else {
@@ -259,6 +277,7 @@ class Tokenizer
                 }
                 break;
             }
+            $tagFirst = false;
         }
 
         return $tokens;

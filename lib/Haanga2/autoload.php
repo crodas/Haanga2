@@ -15,6 +15,7 @@ spl_autoload_register(function ($class) {
 
     // classes {{{
     static $classes = array (
+  'haanga2\\extension\\tag\\escape\\escape' => '/Extension/Tags/Escape.php',
   'haanga2\\compiler\\tokenizer' => '/Compiler/Tokenizer.php',
   'haanga2_yytoken' => '/Compiler/Parser.php',
   'haanga2_yystackentry' => '/Compiler/Parser.php',
@@ -22,6 +23,7 @@ spl_autoload_register(function ($class) {
   'haanga2\\cli\\build' => '/Cli/Build.php',
   'haanga2\\cli\\compiler' => '/Cli/Compiler.php',
   'haanga2\\cli' => '/Cli.php',
+  'haanga2\\extension' => '/Extension.php',
   'notoj\\notoj' => '/../../vendor/crodas/Notoj/lib/Notoj/Notoj.php',
   'notoj\\file' => '/../../vendor/crodas/Notoj/lib/Notoj/File.php',
   'notoj\\annotation' => '/../../vendor/crodas/Notoj/lib/Notoj/Annotation.php',

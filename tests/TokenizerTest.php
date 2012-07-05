@@ -4,6 +4,25 @@ use Haanga2_Compiler_Parser as Parser;
 
 class TokenizerTest extends \phpunit_framework_testcase
 {
+    public function testTokenizerCustomTag()
+    {
+        $code = <<<EOF
+{% start %}
+    foo bar
+{% endstart %}
+EOF;
+        $tokenizer = new \Haanga2\Compiler\Tokenizer;
+        $tokenizer->registerTag('start', true);
+        $tokens    = $tokenizer->tokenize($code);
+        $this->assertTrue(is_array($tokens));
+        $this->assertTrue(count($tokens) > 0);
+
+
+        $this->assertEquals(array(Parser::T_TAG_BLOCK, 'start', 1), $tokens[0]);
+        $this->assertEquals(array(Parser::T_HTML, "\n    foo bar\n", 1), $tokens[1]);
+        $this->assertEquals(array(Parser::T_END, "endstart", 3), $tokens[2]);
+    }
+
     public function testTokenizer()
     {
         $code = <<<EOF
