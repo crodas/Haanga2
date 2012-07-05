@@ -34,69 +34,58 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
+namespace Haanga2;
 
-namespace Haanga2\Extension\Tag\Escape;
+use Notoj\File as FileParser,
+    Symfony\Component\Finder\Finder;
 
-use Haanga2\Compiler,
-    Haanga2\Compiler\Compiler,
-    Haanga2\Compiler\Types\Variable;
-
-class Escape
+class Extension 
 {
-    /**
-     *  @Haanga2\Template
-     *
-     *  Artifex (crodas/Artifex) template to generate code for the 
-     *  escape call.
-     */
-    public function escapeHTML(Compiler $compiler,  $input,  $output)
+    protected $tags = array();
+    protected $tokenizer = NULL;
+
+    public function __construct(Compiler\Tokenizer $tokenizer)
     {
-        $__output__ = htmlspecialchars($__input__, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $this->tokenizer = $tokenizer;
     }
 
-    /**
-     *  @Haanga2\Template
-     *
-     *  Borrowed from Twig.
-     */
-    public function escapeJS(Compiler $compiler,  $input, Variable $output)
+    public function addDirectory($dir)
     {
-        $__output__ = preg_replace_callback('#[^a-zA-Z0-9,\._]#Su', function() {
-            $char = $matches[0];
-            // \xHH
-            if (!isset($char[1])) {
-                return '\\x'.strtoupper(substr('00'.bin2hex($char), -2));
+        if (!is_dir($dir)) {
+            throw new \RuntimeException("{$dir} is not a valid directory");
+        }
+
+        $files = new Finder;
+        $files->files()
+            ->in($dir)
+            ->name("*.php");
+
+        foreach ($files as $file) {
+            $parser = new FileParser($file->getRealPath());
+            foreach ($parser->getAnnotations() as $obj) {
+                foreach ($obj['annotations']->get('Haanga2\\Tag') as $tag) {
+                    if (empty($tag['args']['name'])) {
+                        throw new \RuntimeException("in {$file} one tag has no name on line {$obj['line']}");
+                    }
+                    $callback = array();
+                    foreach (array('class', 'function') as $type) {
+                        if (isset($obj[$type])) {
+                            $callback[] = $obj[$type];
+                        }
+                    }
+
+                    $name  = $tag['args']['name'];
+                    $block = !empty($tag['args']['block']);
+                    $this->tags[$name] = array(
+                        'block'     => $block,
+                        'callback'  => $callback,
+                        'file'      => $obj['file'],
+                    );
+                    $this->tokenizer->registerTag($name, $block);
+                }
             }
-
-            $char = $Compiler->execTemplate('Encode::transform', $char, 'UTF-16BE', 'UTF-8');
-
-            return '\\u'.strtoupper(substr('0000'.bin2hex($char), -4));
-        }, $__input___);
-    }
-
-
-    /**
-     *  @Haanga2\Tag(name="escape", block=true)
-     */
-    public static function doEscape(Compiler $compiler, Array $args, Variable $buffer) 
-    {
-        if (count($args) != 1 || count($args) != 0) {
-            throw new \RuntimeException("escape filter only accepts one argument");
         }
 
-        $output = $compiler->getNewVariable();
-        switch ($args[0]->getValue()) {
-        case 'js':
-            $compiler->execTemplate('Escape::escapeJS', $buffer->getName(), $output->getName());
-            break
-        case 'html':
-            $compiler->execTemplate('Escape::escapeHTML', $buffer->getName(), $output->getName());
-            break;
-        default:
-            throw new \RuntimeException("invalid argument, it should be either js or html");
-        }
-
-
-        $compiler->print($output);
     }
+
 }
