@@ -22,8 +22,10 @@ spl_autoload_register(function ($class) {
   'haanga2_compiler_parser' => '/Compiler/Parser.php',
   'haanga2\\cli\\build' => '/Cli/Build.php',
   'haanga2\\cli\\compiler' => '/Cli/Compiler.php',
+  'haanga2\\loader' => '/Loader.php',
   'haanga2\\cli' => '/Cli.php',
   'haanga2\\extension' => '/Extension.php',
+  'haanga2\\loader\\file' => '/Loader/File.php',
   'notoj\\notoj' => '/../../vendor/crodas/Notoj/lib/Notoj/Notoj.php',
   'notoj\\file' => '/../../vendor/crodas/Notoj/lib/Notoj/File.php',
   'notoj\\annotation' => '/../../vendor/crodas/Notoj/lib/Notoj/Annotation.php',
@@ -139,13 +141,13 @@ spl_autoload_register(function ($class) {
     if (isset($classes[$class])) {
         if (!empty($deps[$class])) {
             foreach ($deps[$class] as $zclass) {
-                if (!class_exists($zclass, false)) {
+                if (!class_exists($zclass, false) && !interface_exists($zclass, false)) {
                     require __DIR__  . $classes[$zclass];
                 }
             }
         }
 
-        if (!class_exists($class, false)) {
+        if (!class_exists($class, false) && !interface_exists($class, false)) {
             require __DIR__  . $classes[$class];
         }
         return true;
