@@ -34,93 +34,24 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
-namespace Haanga2\Loader;
+namespace Haanga2;
 
-use Artifex,
-    Haanga2\Loader;
 
-class File implements Loader
+class Haanga2
 {
-    protected $paths = array();
-    protected $output = "";
+    protected $loader;
 
-    public function __construct($tmp)
+    public function __construct(Loader $loader)
     {
-        if (!is_dir($tmp) || !is_writable($tmp)) {
-            throw new \RuntimeException("{$tmp} is not a valid directory");
-        }
-        $this->output = $tmp;
+        $this->loader = $loader;
     }
 
-    public function addPath($dir, $prepend = false)
+    public function load($tpl, $vars = array(), $return = false)
     {
-        if (!is_dir($dir) || !is_readable($dir)) {
-            throw new \RuntimeException("{$dir} is an invalid directory");
+        $callback = $this->loader->load($tpl);
+        if ($callback && is_callable($callback)) {
+            return $callback($tpl, $vars, $return);
         }
-        if ($prepend) {
-            array_unshift($this->paths, $dir . 'x');
-        } else {
-            $this->paths[] = $dir;
-        }
-
-        return $this;
-    }
-
-    protected function getTplPath($tpl)
-    {
-        foreach ($this->paths as $path) {
-            if (is_file($path . '/' . $tpl)) {
-                $path = $path . '/' . $tpl;
-                break;
-            }
-        }
-
-        if (empty($path)) {
-            throw new \RuntimeException("cannot find template {$tpl}");
-        }
-
-        return realpath($path);
-    }
-
-    public function getTplId($path)
-    {
-        return sha1($path);
-    }
-
-    public function save($tpl, $code)
-    {
-        $path = $this->getTplPath($tpl);
-        $callback = 'haanga2_' . $this->getTplId($path);
-        $compiled = $this->output . '/' . $callback . '.php';
-        
-        // we do not care if this fails
-        Artifex::save($compiled, $code);
-    }
-
-    public function load($tpl)
-    {
-        $path = $this->getTplPath($tpl);
-        $callback = 'haanga2_' . $this->getTplId($path);
-        if (is_callable($callback)) {
-            return $callback;
-        }
-        
-        $compiled = $this->output . '/' . $callback . '.php';
-        if (is_file($compiled) && filemtime($compiled) > filemtime($path)) { 
-            /* load the compiled php only if the compiled
-               version is newer than our tpl file */
-            require $compiled;
-            if (is_callable($callback)) {
-                return $callback;
-            }
-        }
-
-        /* we can't find it, it should be recompiled */
-        return false;
-    }
-
-    public function getContent($tpl)
-    {
-        return file_get_contents($this->getTplPath($tpl));
+        /* compile, compile, compile! */
     }
 }

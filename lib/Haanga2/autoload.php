@@ -16,6 +16,7 @@ spl_autoload_register(function ($class) {
     // classes {{{
     static $classes = array (
   'haanga2\\extension\\tag\\escape\\escape' => '/Extension/Tags/Escape.php',
+  'haanga2\\haanga2' => '/Haanga2.php',
   'haanga2\\compiler\\tokenizer' => '/Compiler/Tokenizer.php',
   'haanga2_yytoken' => '/Compiler/Parser.php',
   'haanga2_yystackentry' => '/Compiler/Parser.php',
