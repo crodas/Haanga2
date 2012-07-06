@@ -36,8 +36,27 @@
 */
 namespace Haanga2\Loader;
 
-class File implements Haanga2\Lodaer
+use Artifex,
+    Haanga2\Loader;
+
+class File implements Loader
 {
+    protected $paths = array();
+
+    public function addPath($dir, $prepend = false)
+    {
+        if (!is_dir($dir) || !is_readable($dir)) {
+            throw new \RuntimeException("{$dir} is an invalid directory");
+        }
+        if ($prepend) {
+            array_unshift($this->paths, $dir . 'x');
+        } else {
+            $this->paths[] = $dir;
+        }
+
+        return $this;
+    }
+
     protected function getTplPath($tpl)
     {
         foreach ($this->paths as $path) {
@@ -54,9 +73,19 @@ class File implements Haanga2\Lodaer
         return realpath($path);
     }
 
-    protected function tplToId($tpl)
+    public function getTplId($tpl)
     {
         return sha1($path);
+    }
+
+    public function save($tpl, $code)
+    {
+        $path = $this->getTplPath($tpl);
+        $callback = 'haanga2_' . $this->getTplId($path);
+        $compiled = $this->output . '/' . $callback . '.php';
+        
+        // we do not care if this fails
+        Artifex::save($compiled, $code);
     }
 
     public function load($tpl)

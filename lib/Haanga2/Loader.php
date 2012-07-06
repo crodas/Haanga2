@@ -41,4 +41,8 @@ interface Loader
     public function load($tpl);
 
     public function getContent($tpl);
+
+    public function getTplId($tpl);
+
+    public function save($tpl, $compiled);
 }
