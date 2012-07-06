@@ -58,7 +58,7 @@ class File implements Loader
             throw new \RuntimeException("{$dir} is an invalid directory");
         }
         if ($prepend) {
-            array_unshift($this->paths, $dir . 'x');
+            array_unshift($this->paths, $dir);
         } else {
             $this->paths[] = $dir;
         }
@@ -70,16 +70,16 @@ class File implements Loader
     {
         foreach ($this->paths as $path) {
             if (is_file($path . '/' . $tpl)) {
-                $path = $path . '/' . $tpl;
+                $file = $path . '/' . $tpl;
                 break;
             }
         }
 
-        if (empty($path)) {
+        if (empty($file)) {
             throw new \RuntimeException("cannot find template {$tpl}");
         }
 
-        return realpath($path);
+        return realpath($file);
     }
 
     public function getTplId($path)

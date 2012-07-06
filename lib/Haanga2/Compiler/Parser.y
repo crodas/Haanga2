@@ -42,15 +42,9 @@
     protected $lex;
     protected $file;
 
-    function __construct($lex, $file='')
-    {
-        $this->lex  = $lex;
-        $this->file = $file;
-    }
-
     function Error($text)
     {
-        throw new Haanga_Compiler_Exception($text.' in '.$this->file.':'.$this->lex->getLine());
+        throw new \RuntimeException($text);
     }
 
 }
@@ -86,6 +80,8 @@ body(A) ::= body(B) code(C) . { B[] = C; A = B; }
 body(A) ::= . { A = array(); }
 
 code(A) ::= T_HTML(B) . { A = new HTML(B); }
+
+code(A) ::= T_ECHO expr(X) . { A = new DoPrint(X); }
 
 // for loop {{{
 code(A) ::= T_FOR for_dest(X) T_IN for_source(C) body(Y) for_end(Z). { A = new Term\OpFor(X, C, Y, Z); }

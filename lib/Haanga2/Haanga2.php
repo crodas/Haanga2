@@ -36,14 +36,20 @@
 */
 namespace Haanga2;
 
+use Haanga2\Compiler\Tokenizer,
+    Haanga2_Compiler_Parser as Parser;
 
 class Haanga2
 {
     protected $loader;
+    protected $Extension;
+    protected $Tokenizer;
 
     public function __construct(Loader $loader)
     {
         $this->loader = $loader;
+        $this->Tokenizer = new Tokenizer;
+        $this->Extension = new Extension($this->Tokenizer);
     }
 
     public function load($tpl, $vars = array(), $return = false)
@@ -53,5 +59,12 @@ class Haanga2
             return $callback($tpl, $vars, $return);
         }
         /* compile, compile, compile! */
+        $source = $this->loader->getContent($tpl);
+        $tokens = $this->Tokenizer->tokenize($source);
+        $parser = new Parser;
+        foreach ($tokens as $token) {
+            $parser->doParse($token[0], $token[1]);
+        }
+        $parser->doParser(0, 0);
     }
 }

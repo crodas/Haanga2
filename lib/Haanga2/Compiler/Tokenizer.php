@@ -68,6 +68,7 @@ class Tokenizer
         '%'     => Parser::T_MOD,
         '=='    => Parser::T_EQ,
         '='     => Parser::T_ASSIGN,
+        '<'     => Parser::T_LT,
         '@'     => Parser::T_AT,
         '$'     => Parser::T_DOLLAR,
         '('     => Parser::T_LPARENT,
@@ -219,7 +220,8 @@ class Tokenizer
                             if ($status != self::IN_TEXT) {
                                 throw new \RuntimeException("Unexpected {$str}");
                             }
-                            $status = self::IN_PRINT;
+                            $tokens[] = array(Parser::T_ECHO, null, $line); 
+                            $status   = self::IN_PRINT;
                             break;
                         case 'tagClose':
                         case 'printClose':
