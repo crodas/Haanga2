@@ -35,6 +35,13 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
+
+use Haanga2\Compiler\Parser\Term,
+    Haanga2\Compiler\Parser\Term\Variable,
+    Haanga2\Compiler\Parser\Expr,
+    Haanga2\Compiler\Parser\DoPrint,
+    Haanga2\Compiler\Parser\DoIf;
+
 }
 
 %declare_class { class Haanga2_Compiler_Parser }
@@ -79,7 +86,7 @@ start ::= body(B) . { $this->body = B; }
 body(A) ::= body(B) code(C) . { B[] = C; A = B; }
 body(A) ::= . { A = array(); }
 
-code(A) ::= T_HTML(B) . { A = new HTML(B); }
+code(A) ::= T_HTML(B) . { A = new DoPrint(new Term\String(B)); }
 
 code(A) ::= T_ECHO expr(X) . { A = new DoPrint(X); }
 
@@ -94,10 +101,10 @@ for_end     ::= T_END|T_ENDFOR .
 // }}}
 
 // if {{{
-code(A) ::= T_IF expr(B) body(C) if_end(X). { A = new Code\opIf(B, C, X); }
-if_end(A) ::= T_ELIF expr(B) body(C) if_end(X) . { A = new Code\opIf(B, C, X); }
+code(A) ::= T_IF expr(B) body(C) if_end(X). { A = new DoIf(B, C, X); }
+if_end(A) ::= T_ELIF expr(B) body(C) if_end(X) . { A = new DoIf(B, C, X); }
 if_end(A) ::= T_ELSE body(X) T_END|T_ENDIF . { A = X; }
-if_end  ::= T_END|T_ENDIF . 
+if_end(A) ::= T_END|T_ENDIF . { A = array(); }
 // }}}
 
 // tags {{{

@@ -21,6 +21,13 @@ spl_autoload_register(function ($class) {
   'haanga2_yytoken' => '/Compiler/Parser.php',
   'haanga2_yystackentry' => '/Compiler/Parser.php',
   'haanga2_compiler_parser' => '/Compiler/Parser.php',
+  'haanga2\\compiler\\parser\\doif' => '/Compiler/Parser/DoIf.php',
+  'haanga2\\compiler\\parser\\term\\variable' => '/Compiler/Parser/Term/Variable.php',
+  'haanga2\\compiler\\parser\\term\\number' => '/Compiler/Parser/Term/Number.php',
+  'haanga2\\compiler\\parser\\term\\string' => '/Compiler/Parser/Term/String.php',
+  'haanga2\\compiler\\parser\\term' => '/Compiler/Parser/Term.php',
+  'haanga2\\compiler\\parser\\expr' => '/Compiler/Parser/Expr.php',
+  'haanga2\\compiler\\parser\\doprint' => '/Compiler/Parser/DoPrint.php',
   'haanga2\\cli\\build' => '/Cli/Build.php',
   'haanga2\\cli\\compiler' => '/Cli/Compiler.php',
   'haanga2\\loader' => '/Loader.php',
@@ -63,6 +70,10 @@ spl_autoload_register(function ($class) {
 
     // deps {{{
     static $deps    = array (
+  'haanga2\\compiler\\parser\\term' => 
+  array (
+    0 => 'haanga2\\compiler\\parser\\expr',
+  ),
   'notoj\\file' => 
   array (
     0 => 'notoj\\notoj',

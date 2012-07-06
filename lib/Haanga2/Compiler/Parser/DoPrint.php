@@ -1,7 +1,7 @@
 <?php
 /*
   +---------------------------------------------------------------------------------+
-  | Copyright (c) 2012 César Rodas and Meneame SL                                   |
+  | Copyright (c) 2012 César Rodas and Menéame Comunicacions S.L.                   |
   +---------------------------------------------------------------------------------+
   | Redistribution and use in source and binary forms, with or without              |
   | modification, are permitted provided that the following conditions are met:     |
@@ -34,38 +34,14 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
-namespace Haanga2;
+namespace Haanga2\Compiler\Parser;
 
-use Haanga2\Compiler\Tokenizer,
-    Haanga2_Compiler_Parser as Parser;
-
-class Haanga2
+class DoPrint
 {
-    protected $loader;
-    protected $Extension;
-    protected $Tokenizer;
+    protected $value;
 
-    public function __construct(Loader $loader)
+    public function __construct(Expr $expr)
     {
-        $this->loader = $loader;
-        $this->Tokenizer = new Tokenizer;
-        $this->Extension = new Extension($this->Tokenizer);
-    }
-
-    public function load($tpl, $vars = array(), $return = false)
-    {
-        $callback = $this->loader->load($tpl);
-        if ($callback && is_callable($callback)) {
-            return $callback($tpl, $vars, $return);
-        }
-        /* compile, compile, compile! */
-        $source = $this->loader->getContent($tpl);
-        $tokens = $this->Tokenizer->tokenize($source);
-        $parser = new Parser;
-        foreach ($tokens as $token) {
-            $parser->doParse($token[0], $token[1]);
-        }
-        $parser->doParse(0, 0);
-        $tree = $parser->body;
+        $this->value = $expr;
     }
 }
