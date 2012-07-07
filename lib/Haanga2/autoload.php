@@ -22,6 +22,7 @@ spl_autoload_register(function ($class) {
   'haanga2_yytoken' => '/Compiler/Parser.php',
   'haanga2_yystackentry' => '/Compiler/Parser.php',
   'haanga2_compiler_parser' => '/Compiler/Parser.php',
+  'haanga2\\compiler\\parser\\dofor' => '/Compiler/Parser/DoFor.php',
   'haanga2\\compiler\\parser\\doif' => '/Compiler/Parser/DoIf.php',
   'haanga2\\compiler\\parser\\term\\variable' => '/Compiler/Parser/Term/Variable.php',
   'haanga2\\compiler\\parser\\term\\number' => '/Compiler/Parser/Term/Number.php',

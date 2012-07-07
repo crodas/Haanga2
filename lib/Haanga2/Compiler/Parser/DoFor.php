@@ -1,7 +1,7 @@
 <?php
 /*
   +---------------------------------------------------------------------------------+
-  | Copyright (c) 2012 César Rodas and Meneame SL                                   |
+  | Copyright (c) 2012 César Rodas and Menéame Comunicacions S.L.                   |
   +---------------------------------------------------------------------------------+
   | Redistribution and use in source and binary forms, with or without              |
   | modification, are permitted provided that the following conditions are met:     |
@@ -34,51 +34,62 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
-namespace Haanga2;
+namespace Haanga2\Compiler\Parser;
 
-use Haanga2\Compiler\Tokenizer,
-    Haanga2_Compiler_Parser as Parser;
+use Haanga2\Compiler\Dumper;
 
-class Haanga2
+class DoFor
 {
-    protected $loader;
-    protected $Extension;
-    protected $Tokenizer;
+    protected $source;
+    protected $body;
+    protected $else;
+    protected $key;
+    protected $value;
 
-    public function __construct(Loader $loader)
+    public function __construct(Array $dest, Expr $source, Array $body, Array $else)
     {
-        $this->loader = $loader;
-        $this->Tokenizer = new Tokenizer;
-        $this->Extension = new Extension($this->Tokenizer);
+        $this->value  = $dest[0];
+        if (count($dest) == 2) {
+            $this->key = $dest[1];
+        }
+        $this->source = $source;
+        $this->body   = $body;
+        $this->else   = $else;
     }
 
-    public function compile($source)
-    {
-        $tokens = $this->Tokenizer->tokenize($source);
-        $parser = new Parser;
-        foreach ($tokens as $token) {
-            $parser->doParse($token[0], $token[1]);
+    public function generate(Dumper $vm)
+    { 
+        $source = $this->source->toString($vm);
+        $dest   = $this->key ? $this->key->toString($vm) . " => " : "";
+        $dest  .= $this->value->toString($vm);
+
+        if ($this->else) {
+            // we should copy the result of the source
+            // so evaluate the expression *once* and deteterminate
+            // if we should iterate or execute the empty code block
+            // TODO:
+            //  The Dumper class will give class to the compiler
+            //  class later, it will have methods to create random
+            //  variables in a fashion way.
+            $var = '$xxx' . uniqid(true); 
+            $vm->writeLn("$var = {$source};")
+                ->writeLn("if (empty($var)) {")
+                ->indent()
+                    ->evaluate($this->else)
+                ->dedent()
+                ->writeLn('} else {')
+                ->indent();
+            $source = $var;
         }
-        $parser->doParse(0, 0);
-        $tree = $parser->body;
-        $vm   = new Compiler\Dumper;
-        $vm->writeLn('function ($context, $return)')
-            ->writeLn('{')
+
+        $vm->writeLn("foreach({$source} as {$dest}) {")
             ->indent()
-                ->evaluate($tree)
+                ->evaluate($this->body)
             ->dedent()
             ->writeLn('}');
-        die($vm->buffer);
-    }
-
-    public function load($tpl, $vars = array(), $return = false)
-    {
-        $callback = $this->loader->load($tpl);
-        if ($callback && is_callable($callback)) {
-            return $callback($tpl, $vars, $return);
+        if ($this->else) {
+            $vm->dedent()
+                ->writeLn('}');
         }
-
-        /* compile, compile, compile! */
-        $this->compile($this->loader->getContent($tpl));
     }
 }

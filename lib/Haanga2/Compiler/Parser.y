@@ -40,6 +40,7 @@ use Haanga2\Compiler\Parser\Term,
     Haanga2\Compiler\Parser\Term\Variable,
     Haanga2\Compiler\Parser\Expr,
     Haanga2\Compiler\Parser\DoPrint,
+    Haanga2\Compiler\Parser\DoFor,
     Haanga2\Compiler\Parser\DoIf;
 
 }
@@ -91,13 +92,13 @@ code(A) ::= T_HTML(B) . { A = new DoPrint(new Term\String(B)); }
 code(A) ::= T_ECHO expr(X) . { A = new DoPrint(X); }
 
 // for loop {{{
-code(A) ::= T_FOR for_dest(X) T_IN for_source(C) body(Y) for_end(Z). { A = new Term\OpFor(X, C, Y, Z); }
+code(A) ::= T_FOR for_dest(X) T_IN for_source(C) body(Y) for_end(Z). { A = new DoFor(X, C, Y, Z); }
 for_source(A) ::= term(B) . { A = B; }
 for_source(A) ::= T_LPARENT expr(B) T_RPARENT . { A = B; }
 for_dest(A) ::= variable(X) . { A = array(X); }
 for_dest(A) ::= variable(X) T_COMMA variable(Y) . { A = array(Y, X); }
 for_end(A)  ::= T_EMPTY body(X) T_END|T_ENDFOR . { A = X; }
-for_end     ::= T_END|T_ENDFOR .
+for_end(A)  ::= T_END|T_ENDFOR . { A = array(); }
 // }}}
 
 // if {{{

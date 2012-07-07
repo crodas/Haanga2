@@ -86,6 +86,7 @@ class Tokenizer
         '}'     => Parser::T_CURLY_OPEN,
         '['     => Parser::T_BRACKETS_OPEN,
         ']'     => Parser::T_BRACKETS_CLOSE,
+        ','     => Parser::T_COMMA,
     );
 
     protected $tags = array();
