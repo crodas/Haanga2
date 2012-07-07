@@ -1,7 +1,7 @@
 <?php
 /*
   +---------------------------------------------------------------------------------+
-  | Copyright (c) 2012 César Rodas and Menéame Comunicacions S.L.                   |
+  | Copyright (c) 2012 César Rodas and Meneame SL                                   |
   +---------------------------------------------------------------------------------+
   | Redistribution and use in source and binary forms, with or without              |
   | modification, are permitted provided that the following conditions are met:     |
@@ -34,32 +34,60 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
-namespace Haanga2\Compiler\Parser;
+namespace Haanga2\Compiler;
 
-use Haanga2\Compiler\Dumper;
-
-class DoIf
+class Dumper
 {
-    protected $expr;
-    protected $body;
-    protected $else;
+    public $buffer = "";
+    public $level  = 0;
+    public $isFinal = false;
 
-    public function __construct(Expr $expr, Array $body, Array $else = array())
+    public function writeLn($line)
     {
-        $this->expr = $expr;
-        $this->body = $body;
-        $this->else = $else;
+        $this->write($line . "\n");
+        return $this;
     }
 
-    public function generate(Dumper $vm)
+    public function write($line)
     {
-        $vm->writeLn('if ('  . $this->expr->toString($vm)  . ') {')
-            ->evaluate($this->body);
-        if ($this->else) {
-            $vm->write('} else ')
-                ->evaluate($this->else);
-        } else {
-            $vm->writeLn('}');
+        if ($this->isFinal) {
+            $line = str_repeat("    ", $this->level) . $line;
+            $this->isFinal = false;
         }
+
+        switch ($last = substr($line, -1)) {
+        case '}':
+            $this->level--;
+            break;
+        case '{':
+            $this->level++;
+            break;
+        }
+
+        if ($last == "\n") {
+            $this->isFinal = true;
+        }
+
+        $this->buffer .= $line;
+    }
+
+
+    public function doPrint($expr)
+    {
+        if (is_object($expr) && is_callable(array($expr, 'toString'))) {
+            $expr = $expr->toString($this);
+        }
+
+        if (!is_scalar($expr)) {
+            throw new \RuntimeException("Don't know how to print a non-scalar value");
+        }
+        $this->writeLn("echo {$expr};");
+    }
+
+    public function evaluate($obj)
+    {
+        echo ($this->buffer) . "\n----------------\n";
+        $obj->generate($this);
     }
 }
+

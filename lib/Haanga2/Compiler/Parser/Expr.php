@@ -36,6 +36,8 @@
 */
 namespace Haanga2\Compiler\Parser;
 
+use Haanga2\Compiler\Dumper;
+
 class Expr
 {
     protected $value;
@@ -43,5 +45,14 @@ class Expr
     public function __construct()
     {
         $this->value = func_get_args();
+    }
+
+    public function toString(Dumper $vm)
+    {
+        $expr = "";
+        foreach ($this->value as $term) {
+            $expr .= is_object($term) ? $term->toString($vm) : $term;
+        }
+        return $expr;
     }
 }

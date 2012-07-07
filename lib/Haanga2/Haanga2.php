@@ -52,14 +52,8 @@ class Haanga2
         $this->Extension = new Extension($this->Tokenizer);
     }
 
-    public function load($tpl, $vars = array(), $return = false)
+    public function compile($source)
     {
-        $callback = $this->loader->load($tpl);
-        if ($callback && is_callable($callback)) {
-            return $callback($tpl, $vars, $return);
-        }
-        /* compile, compile, compile! */
-        $source = $this->loader->getContent($tpl);
         $tokens = $this->Tokenizer->tokenize($source);
         $parser = new Parser;
         foreach ($tokens as $token) {
@@ -67,5 +61,19 @@ class Haanga2
         }
         $parser->doParse(0, 0);
         $tree = $parser->body;
+        $vm   = new Compiler\Dumper;
+        foreach ($tree as $operation) {
+            $vm->evaluate($operation);
+        }
+    }
+
+    public function load($tpl, $vars = array(), $return = false)
+    {
+        $callback = $this->loader->load($tpl);
+        if ($callback && is_callable($callback)) {
+            return $callback($tpl, $vars, $return);
+        }
+        /* compile, compile, compile! */
+        $this->compile($this->loader->getContent($tpl));
     }
 }

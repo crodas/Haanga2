@@ -36,6 +36,8 @@
 */
 namespace Haanga2\Compiler\Parser;
 
+use Haanga2\Compiler\Dumper;
+
 class DoPrint
 {
     protected $value;
@@ -43,5 +45,9 @@ class DoPrint
     public function __construct(Expr $expr)
     {
         $this->value = $expr;
+    }
+
+    public function generate(Dumper $vm) {
+        $vm->doPrint($this->value);
     }
 }

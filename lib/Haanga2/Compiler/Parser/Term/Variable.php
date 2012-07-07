@@ -37,12 +37,13 @@
 namespace Haanga2\Compiler\Parser\Term;
 
 use Haanga2\Compiler\Parser\Term,
-    Haanga2\Compiler;
+    Haanga2\Compiler\Dumper;
 
 class Variable extends Term
 {
-    public function toString(Compiler $vm)
+    public function toString(Dumper $vm)
     {
+        return '$' . $this->value;
     }
 }
 

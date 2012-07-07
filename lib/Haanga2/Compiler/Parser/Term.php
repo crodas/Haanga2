@@ -37,7 +37,7 @@
 namespace Haanga2\Compiler\Parser;
         
 
-use Haanga2\Compiler;
+use Haanga2\Compiler\Dumper;
 
 class Term extends Expr
 {
@@ -48,7 +48,7 @@ class Term extends Expr
         $this->value = $value;
     }
 
-    public function toString(Compiler $vm)
+    public function toString(Dumper $vm)
     {
         return var_export($this->value, true);
     }
