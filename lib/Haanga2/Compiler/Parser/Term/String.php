@@ -38,7 +38,19 @@ namespace Haanga2\Compiler\Parser\Term;
 
 use Haanga2\Compiler\Parser\Term;
 
+use Haanga2\Compiler\Dumper;
+
 class String extends Term
 {
+    public function toString(Dumper $vm)
+    {
+        $php = addslashes($this->value);
+        $replace = array(
+            "\n" => '\n',
+            "\r" => '\r',
+            "\t" => '\t',
+        );
+        return '"' . str_replace(array_keys($replace), $replace, $php) . '"';
+    }
 }
 

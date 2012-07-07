@@ -40,7 +40,6 @@ class Dumper
 {
     public $buffer = "";
     public $level  = 0;
-    public $isFinal = false;
 
     public function writeLn($line)
     {
@@ -48,27 +47,27 @@ class Dumper
         return $this;
     }
 
+    public function indent()
+    {
+        $this->level++;
+        return $this;
+    }
+
+    public function dedent()
+    {
+        $this->level--;
+        return $this;
+    }
+
     public function write($line)
     {
-        if ($this->isFinal) {
+        if (substr($this->buffer, -1) == "\n") {
             $line = str_repeat("    ", $this->level) . $line;
-            $this->isFinal = false;
-        }
-
-        switch ($last = substr($line, -1)) {
-        case '}':
-            $this->level--;
-            break;
-        case '{':
-            $this->level++;
-            break;
-        }
-
-        if ($last == "\n") {
-            $this->isFinal = true;
         }
 
         $this->buffer .= $line;
+
+        return $this;
     }
 
 
@@ -86,8 +85,15 @@ class Dumper
 
     public function evaluate($obj)
     {
-        echo ($this->buffer) . "\n----------------\n";
-        $obj->generate($this);
+        if (is_array($obj)) {
+            foreach ($obj as $i) {
+                $i->generate($this);
+            }
+        } else {
+            $obj->generate($this);
+        }
+
+        return $this;
     }
 }
 

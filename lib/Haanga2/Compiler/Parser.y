@@ -102,7 +102,7 @@ for_end     ::= T_END|T_ENDFOR .
 
 // if {{{
 code(A) ::= T_IF expr(B) body(C) if_end(X). { A = new DoIf(B, C, X); }
-if_end(A) ::= T_ELIF expr(B) body(C) if_end(X) . { A = new DoIf(B, C, X); }
+if_end(A) ::= T_ELIF expr(B) body(C) if_end(X) . { A = array(new DoIf(B, C, X)); }
 if_end(A) ::= T_ELSE body(X) T_END|T_ENDIF . { A = X; }
 if_end(A) ::= T_END|T_ENDIF . { A = array(); }
 // }}}

@@ -54,10 +54,23 @@ class DoIf
     public function generate(Dumper $vm)
     {
         $vm->writeLn('if ('  . $this->expr->toString($vm)  . ') {')
-            ->evaluate($this->body);
+            ->indent()
+            ->evaluate($this->body)
+            ->dedent();
+
         if ($this->else) {
-            $vm->write('} else ')
-                ->evaluate($this->else);
+            if (count($this->else) == 1 && $this->else[0] instanceof $this) {
+                // else if 
+                $vm->write('} else ')
+                    ->evaluate($this->else);
+            } else {
+                // else 
+                $vm->writeLn('} else {')
+                    ->indent()
+                    ->evaluate($this->else)
+                    ->dedent()
+                    ->writeLn("}");
+            }
         } else {
             $vm->writeLn('}');
         }
