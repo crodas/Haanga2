@@ -43,8 +43,12 @@ class Method extends Expr
     protected $method;
     protected $args;
 
-    public function __construct($method, $args = array())
+    public function __construct(Term\Variable $method, $args = array())
     {
+        if (!$method->isObject()) {
+            throw new \RuntimeException("Trying to use a method call with a variable");
+        }
+
         $this->method = $method;
         $this->args   = $args;
     }

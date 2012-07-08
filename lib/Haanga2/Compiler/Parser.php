@@ -1304,16 +1304,16 @@ static public $yy_action = array(
     function yy_r19(){ $this->_retvalue = new Variable($this->yystack[$this->yyidx + 0]->minor);     }
 #line 1311 "lib/Haanga2/Compiler/Parser.php"
 #line 123 "lib/Haanga2/Compiler/Parser.y"
-    function yy_r20(){ $this->_retvalue = new Variable($this->yystack[$this->yyidx + 0]->minor, 'object');     }
+    function yy_r20(){ $this->_retvalue = new Variable($this->yystack[$this->yyidx + 0]->minor, Variable::T_OBJECT);     }
 #line 1314 "lib/Haanga2/Compiler/Parser.php"
 #line 124 "lib/Haanga2/Compiler/Parser.y"
-    function yy_r21(){ $this->_retvalue = new Variable($this->yystack[$this->yyidx + 0]->minor, 'array');     }
+    function yy_r21(){ $this->_retvalue = new Variable($this->yystack[$this->yyidx + 0]->minor, Variable::T_ARRAY);     }
 #line 1317 "lib/Haanga2/Compiler/Parser.php"
 #line 125 "lib/Haanga2/Compiler/Parser.y"
-    function yy_r22(){ $this->yystack[$this->yyidx + -2]->minor->addPart($this->yystack[$this->yyidx + 0]->minor, 'object'); $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor;     }
+    function yy_r22(){ $this->yystack[$this->yyidx + -2]->minor->addPart($this->yystack[$this->yyidx + 0]->minor, Variable::T_OBJECT); $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor;     }
 #line 1320 "lib/Haanga2/Compiler/Parser.php"
 #line 126 "lib/Haanga2/Compiler/Parser.y"
-    function yy_r23(){ $this->yystack[$this->yyidx + -3]->minor->addPart($this->yystack[$this->yyidx + -1]->minor, 'array'); $this->_retvalue = $this->yystack[$this->yyidx + -3]->minor ;     }
+    function yy_r23(){ $this->yystack[$this->yyidx + -3]->minor->addPart($this->yystack[$this->yyidx + -1]->minor, Variable::T_ARRAY); $this->_retvalue = $this->yystack[$this->yyidx + -3]->minor ;     }
 #line 1323 "lib/Haanga2/Compiler/Parser.php"
 #line 130 "lib/Haanga2/Compiler/Parser.y"
     function yy_r24(){ $this->_retvalue = new Expr($this->yystack[$this->yyidx + 0]->minor, 'not');     }

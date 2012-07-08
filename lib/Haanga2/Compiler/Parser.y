@@ -121,10 +121,10 @@ code(A) ::= T_SET variable(B) T_ASSIGN expr(C) . { A = new DefVariable(B, C); }
 
 // variable {{{
 variable(A) ::= alpha(B) . { A = new Variable(B); }
-variable(A) ::= T_DOLLAR alpha(B) . { A = new Variable(B, 'object'); }
-variable(A) ::= T_AT alpha(B) . { A = new Variable(B, 'array'); }
-variable(A) ::= variable(B) T_DOT|T_OBJ variable(C) . { B->addPart(C, 'object'); A = B; }
-variable(A) ::= variable(B) T_BRACKETS_OPEN expr(C) T_BRACKETS_CLOSE . { B->addPart(C, 'array'); A = B ; }
+variable(A) ::= T_DOLLAR alpha(B) . { A = new Variable(B, Variable::T_OBJECT); }
+variable(A) ::= T_AT alpha(B) . { A = new Variable(B, Variable::T_ARRAY); }
+variable(A) ::= variable(B) T_DOT|T_OBJ variable(C) . { B->addPart(C, Variable::T_OBJECT); A = B; }
+variable(A) ::= variable(B) T_BRACKETS_OPEN expr(C) T_BRACKETS_CLOSE . { B->addPart(C, Variable::T_ARRAY); A = B ; }
 // }}} 
 
 // expr {{{

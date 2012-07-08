@@ -41,11 +41,15 @@ use Haanga2\Compiler\Parser\Term,
 
 class Variable extends Term
 {
+    const T_GUESS  = 0;
+    const T_OBJECT = 1;
+    const T_ARRAY  = 2;
+
     protected $name;
     protected $type;
     protected $parts = array();
 
-    public function __construct($name, $type = 'guess')
+    public function __construct($name, $type = self::T_GUESS)
     {
         $this->name = $name;
         $this->type = $type;
@@ -54,6 +58,11 @@ class Variable extends Term
     public function getType()
     {
         return $this->type;
+    }
+
+    public function isObject()
+    {
+        return count($this->parts) > 0;
     }
 
     public function addPart($part, $default)
@@ -66,26 +75,42 @@ class Variable extends Term
         $variable = '$' . $this->name;
         foreach ($this->parts as $part) {
             $value = $part[0]->toString($vm);
-            switch ($part[0]->getType()) {
-            case 'guess':
+            if ($part[0] instanceof Variable) {
+                $type = $part[0]->getType();
+            } else {
+                $type = self::T_GUESS;
+            }
+
+            switch ($type) {
+            case self::T_GUESS:
                 // we need to guess the variable type
                 // TODO:
                 //  need to get access to the context if there
                 //  is one (in cli we there isn't one) and check
                 //  the current value;
                 switch ($part[1]) {
-                case 'object':
-                    $variable .= '->' . substr($value, 1);
+                case self::T_OBJECT:
+                    if ($part[0] instanceof Variable) {
+                        $value = substr($value, 1);
+                    } else {
+                        $value = '{' . $value . '}';
+                    }
+                    $variable .= '->' . $value;
                     break;
-                case 'array':
+                case self::T_ARRAY:
                     $variable .= '[' . $value . ']';
                     break;
                 }
                 break;
-            case 'object':
-                $variable .= '->' . substr($value, 1);
+
+            case self::T_OBJECT:
+                if ($part[1] !== self::T_ARRAY) {
+                    $value = substr($value, 1);
+                }
+                $variable .= '->' . $value;
                 break;
-            case 'array':
+
+            case self::T_ARRAY:
                 $variable .= '[' . $value . ']';
                 break;
             }
