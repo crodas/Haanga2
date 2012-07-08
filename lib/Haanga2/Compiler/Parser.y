@@ -41,6 +41,8 @@ use Haanga2\Compiler\Parser\Term,
     Haanga2\Compiler\Parser\Expr,
     Haanga2\Compiler\Parser\DoPrint,
     Haanga2\Compiler\Parser\DoFor,
+    Haanga2\Compiler\Parser\Method,
+    Haanga2\Compiler\Parser\DefVariable,
     Haanga2\Compiler\Parser\DoIf;
 
 }
@@ -137,7 +139,7 @@ expr(A) ::= expr(B) T_BITWISE(X)  expr(C).  { A = new Expr(B, @X, C); }
 expr(A) ::= expr(B) T_PIPE  expr(C).  { A = new Expr(B, @X, C); }
 expr(A) ::= T_LPARENT expr(B) T_RPARENT . { A = new Expr(B); }
 expr(A) ::= term(B) . { A = B; }
-// }}}
+// }}} 
 
 // term  {{{
 term(A) ::= term_simple(B) T_FILTER_PIPE filters(X) . { A = new Term\Filter(B, X); }
@@ -147,6 +149,7 @@ term_simple(A) ::= T_BOOL(X) . { A = new Term\Boolean(X); }
 term_simple(A) ::= variable(B) . { A = B; }
 term_simple(A) ::= T_NUMBER(B) . { A = new Term\Number(B); }
 term_simple(A) ::= T_STRING(B) . { A = new Term\String(B) ; }
+term_simple(A) ::= variable(B)  T_LPARENT args(C) T_RPARENT . { A = new Method(B, C); }
 
 alpha(A) ::= T_ALPHA(X) . { A = X; }
 // }}}
@@ -181,5 +184,6 @@ arguments(A) ::= T_LPARENT args(X) T_RPARENT . { A = X; }
 
 args(A) ::= args(B) T_COMMA args(C) . { A = array_merge(B, C); }
 args(A) ::= expr(B)  . { A = array(B); }
+args(A) ::= . { A = array(); }
 // }}}
 

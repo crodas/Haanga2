@@ -34,64 +34,26 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
-namespace Haanga2\Compiler\Parser\Term;
+namespace Haanga2\Compiler\Parser;
 
-use Haanga2\Compiler\Parser\Term,
-    Haanga2\Compiler\Dumper;
+use Haanga2\Compiler\Dumper;
 
-class Variable extends Term
+class Method extends Expr
 {
-    protected $name;
-    protected $type;
-    protected $parts = array();
+    protected $method;
+    protected $args;
 
-    public function __construct($name, $type = 'guess')
+    public function __construct($method, $args = array())
     {
-        $this->name = $name;
-        $this->type = $type;
-    }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    public function addPart($part, $default)
-    {
-        $this->parts[] = func_get_args();
+        $this->method = $method;
+        $this->args   = $args;
     }
 
     public function toString(Dumper $vm)
     {
-        $variable = '$' . $this->name;
-        foreach ($this->parts as $part) {
-            $value = $part[0]->toString($vm);
-            switch ($part[0]->getType()) {
-            case 'guess':
-                // we need to guess the variable type
-                // TODO:
-                //  need to get access to the context if there
-                //  is one (in cli we there isn't one) and check
-                //  the current value;
-                switch ($part[1]) {
-                case 'object':
-                    $variable .= '->' . substr($value, 1);
-                    break;
-                case 'array':
-                    $variable .= '[' . $value . ']';
-                    break;
-                }
-                break;
-            case 'object':
-                $variable .= '->' . substr($value, 1);
-                break;
-            case 'array':
-                $variable .= '[' . $value . ']';
-                break;
-            }
-        }
-        return $variable;
+        $args = '(' . implode(", ", array_map(function($elem) use ($vm) {
+            return $elem->toString($vm);
+        }, $this->args)) . ')';
+        return $this->method->toString($vm) . $args;
     }
 }
-
-

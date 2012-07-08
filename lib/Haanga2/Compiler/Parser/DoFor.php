@@ -68,7 +68,7 @@ class DoFor
             // so evaluate the expression *once* and deteterminate
             // if we should iterate or execute the empty code block
             // TODO:
-            //  The Dumper class will give class to the compiler
+            //  The Dumper class will give access to the compiler
             //  class later, it will have methods to create random
             //  variables in a fashion way.
             $var = '$xxx' . uniqid(true); 

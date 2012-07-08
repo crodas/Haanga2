@@ -34,64 +34,23 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
-namespace Haanga2\Compiler\Parser\Term;
+namespace Haanga2\Compiler\Parser;
 
-use Haanga2\Compiler\Parser\Term,
-    Haanga2\Compiler\Dumper;
+use Haanga2\Compiler\Dumper;
 
-class Variable extends Term
+class DefVariable
 {
-    protected $name;
-    protected $type;
-    protected $parts = array();
+    protected $var;
+    protected $expr;
 
-    public function __construct($name, $type = 'guess')
+    public function __construct(Term\Variable $var, Expr $expr)
     {
-        $this->name = $name;
-        $this->type = $type;
+        $this->var  = $var;
+        $this->expr = $expr; 
     }
 
-    public function getType()
+    public function generate(Dumper $vm)
     {
-        return $this->type;
-    }
-
-    public function addPart($part, $default)
-    {
-        $this->parts[] = func_get_args();
-    }
-
-    public function toString(Dumper $vm)
-    {
-        $variable = '$' . $this->name;
-        foreach ($this->parts as $part) {
-            $value = $part[0]->toString($vm);
-            switch ($part[0]->getType()) {
-            case 'guess':
-                // we need to guess the variable type
-                // TODO:
-                //  need to get access to the context if there
-                //  is one (in cli we there isn't one) and check
-                //  the current value;
-                switch ($part[1]) {
-                case 'object':
-                    $variable .= '->' . substr($value, 1);
-                    break;
-                case 'array':
-                    $variable .= '[' . $value . ']';
-                    break;
-                }
-                break;
-            case 'object':
-                $variable .= '->' . substr($value, 1);
-                break;
-            case 'array':
-                $variable .= '[' . $value . ']';
-                break;
-            }
-        }
-        return $variable;
+        $vm->writeLn( $this->var->toString($vm) . '=' . $this->expr->toString($vm) . ';' );
     }
 }
-
-
