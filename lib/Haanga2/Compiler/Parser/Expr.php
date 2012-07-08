@@ -49,10 +49,8 @@ class Expr
 
     public function toString(Dumper $vm)
     {
-        $expr = "";
-        foreach ($this->value as $term) {
-            $expr .= is_object($term) ? $term->toString($vm) : $term;
-        }
-        return $expr;
+        return implode(" ", array_map(function($v) use ($vm) {
+            return is_object($v) ? $v->toString($vm) : $v;
+        }, $this->value));
     }
 }
