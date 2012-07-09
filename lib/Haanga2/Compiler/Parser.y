@@ -121,9 +121,8 @@ code(A) ::= T_SET variable(B) T_ASSIGN expr(C) . { A = new DefVariable(B, C); }
 
 // variable {{{
 variable(A) ::= variable(B) var_part(X) . { A = B; B->addPart(X[1], X[0]); }
-variable(A) ::= variable(B) T_OBJ|T_DOT variable(C) . { A = B; A->addPart(C, T_OBJECT); }
+variable(A) ::= variable(B) T_OBJ|T_DOT variable(C) . { A = B; A->addPart(C, Variable::T_DOT); }
 variable(A) ::= alpha(B) . { A = new Variable(B); }
-variable(A) ::= T_DOLLAR alpha(B) . { A = new Variable(B, Variable::T_OBJECT); }
 variable(A) ::= T_AT alpha(B) . { A = new Variable(B, Variable::T_ARRAY); }
 
 var_part(A) ::= T_BRACKET_OPEN expr(C) T_BRACKET_CLOSE . { A = array(Variable::T_ARRAY, C); }

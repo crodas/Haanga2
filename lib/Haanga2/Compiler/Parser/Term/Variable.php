@@ -41,18 +41,18 @@ use Haanga2\Compiler\Parser\Term,
 
 class Variable extends Term
 {
-    const T_GUESS  = 0;
     const T_OBJECT = 1;
     const T_ARRAY  = 2;
+    const T_DOT    = 3;
 
     protected $name;
-    protected $type;
+    protected $dot;
     protected $parts = array();
 
-    public function __construct($name, $type = self::T_GUESS)
+    public function __construct($name, $dot = NULL)
     {
         $this->name = $name;
-        $this->type = $type;
+        $this->dot  = $dot;
     }
 
     public function getType()
@@ -73,84 +73,27 @@ class Variable extends Term
     public function toString(Dumper $vm)
     {
         $variable = '$' . $this->name;
-        $parts    = array($this->name);
-        $type     = $this->getType();
+        $treatDot = $this->dot;
 
         foreach ($this->parts as $part) {
             $value = $part[0]->toString($vm);
-            switch ($type) {
-            case self::T_GUESS:
-                // we need to guess the variable type,
-                // in order to get a better result we
-                // check the current value in the context. If
-                // we can't find them, we give up, we use their
-                // default type
-                $type = $part[1];
-                if ($parts) {
-                    /* query the context, if the we 
-                       have no context means that would 
-                       have to evalute things, we don't it yet  */
-                    $ctxValue = $vm->contextQuery($parts);
-                    if (is_array($ctxValue)) {
-                        $type = self::T_ARRAY;
-                    } else if (is_object($ctxValue)) {
-                        $type = self::T_OBJECT;
-                    }
-                }
-                switch ($type) {
-                case self::T_OBJECT:
-                    if ($part[1] != self::T_ARRAY && $part[0] instanceof Variable) {
-                        $value = substr($value, 1);
-                        if ($parts) {
-                            $parts[] = $value;
-                        }
-                    } else {
-                        $value = '{' . $value . '}';
-                        $parts = false;
-                    }
+            switch ($part[1]) {
+            case self::T_DOT:
+                $value = substr($value, 1);
+                if ($treatDot == self::T_ARRAY) {
+                    $variable .= '["' . $value . '"]';
+                } else {
                     $variable .= '->' . $value;
-                    break;
-                case self::T_ARRAY:
-                    $variable .= '[' . $value . ']';
-                    break;
                 }
                 break;
-
             case self::T_OBJECT:
-                if ($part[1] != self::T_ARRAY && $part[0] instanceof Variable) {
-                    $value   = substr($value, 1);
-                    if ($parts) {
-                        $parts[] = $value;
-                    }
-                } else {
-                    $value = '{' . $value . '}';
-                    $parts = false;
-                }
-                $variable .= '->' . $value;
+                $variable .= '->{' . $value . '}';
                 break;
 
             case self::T_ARRAY:
-                if ($part[1] != self::T_ARRAY && $part[0] instanceof Variable) {
-                    $value   = '"' .  substr($value, 1) . '"';
-                    if ($parts) {
-                        $parts[] = $value;
-                    }
-                } else {
-                    $parts = false;
-                }
                 $variable .= '[' . $value . ']';
                 break;
             }
-
-            // Get the current variable type, so we
-            //  know how to deal the sub-element /property
-            //  of this element if there is any.
-            if ($part[0] instanceof Variable) {
-                $type = $part[0]->getType();
-            } else {
-                $type = self::T_GUESS;
-            }
-
         }
         return $variable;
     }

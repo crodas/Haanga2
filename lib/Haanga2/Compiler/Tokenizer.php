@@ -73,7 +73,6 @@ class Tokenizer
         '>'     => Parser::T_GT,
         '>='     => Parser::T_GE,
         '@'     => Parser::T_AT,
-        '$'     => Parser::T_DOLLAR,
         '('     => Parser::T_LPARENT,
         ')'     => Parser::T_RPARENT,
         '->'    => Parser::T_OBJ,
