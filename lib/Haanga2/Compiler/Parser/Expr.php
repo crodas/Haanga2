@@ -47,6 +47,13 @@ class Expr
         $this->value = func_get_args();
     }
 
+    public static function fromArray(Array $expr)
+    {
+        $x = new self;
+        $x->value = $expr;
+        return $x;
+    }
+
     public function toString(Dumper $vm)
     {
         if (count($this->value) == 1 && $this->value[0] instanceof self) {

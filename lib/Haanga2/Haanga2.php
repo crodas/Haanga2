@@ -60,13 +60,13 @@ class Haanga2
             $parser->doParse($token[0], $token[1]);
         }
         $parser->doParse(0, 0);
-        $tree = $parser->body;
+        $tree = new Compiler\Optimizer($parser->body);
         $vm   = new Compiler\Dumper();
         $vm->setContext($context);
         $vm->writeLn('function ($context, $return)')
             ->writeLn('{')
             ->indent()
-                ->evaluate($tree)
+                ->evaluate($tree->getIterator())
             ->dedent()
             ->writeLn('}');
         die($vm->buffer);

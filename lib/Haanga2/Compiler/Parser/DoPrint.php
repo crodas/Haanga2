@@ -47,6 +47,16 @@ class DoPrint
         $this->value = $expr;
     }
 
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    public function setValue(Expr $expr)
+    {
+        $this->value = $expr;
+    }
+
     public function generate(Dumper $vm) {
         $vm->doPrint($this->value);
     }
