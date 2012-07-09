@@ -50,7 +50,7 @@ class Expr
     public function toString(Dumper $vm)
     {
         return implode(" ", array_map(function($v) use ($vm) {
-            return is_object($v) ? $v->toString($vm) : $v;
+            return is_object($v) ? $v->toString($vm) : ($v == '~' ? '.' : $v);
         }, $this->value));
     }
 }

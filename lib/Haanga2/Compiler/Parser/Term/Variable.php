@@ -75,6 +75,7 @@ class Variable extends Term
         $variable = '$' . $this->name;
         $parts    = array($this->name);
         $type     = $this->getType();
+
         foreach ($this->parts as $part) {
             $value = $part[0]->toString($vm);
             switch ($type) {
@@ -84,19 +85,28 @@ class Variable extends Term
                 // check the current value in the context. If
                 // we can't find them, we give up, we use their
                 // default type
-                $ctxValue = $vm->contextQuery($parts);
                 $type = $part[1];
-                if (is_array($ctxValue)) {
-                    $type = self::T_ARRAY;
-                } else if (is_object($ctxValue)) {
-                    $type = self::T_OBJECT;
+                if ($parts) {
+                    /* query the context, if the we 
+                       have no context means that would 
+                       have to evalute things, we don't it yet  */
+                    $ctxValue = $vm->contextQuery($parts);
+                    if (is_array($ctxValue)) {
+                        $type = self::T_ARRAY;
+                    } else if (is_object($ctxValue)) {
+                        $type = self::T_OBJECT;
+                    }
                 }
                 switch ($type) {
                 case self::T_OBJECT:
                     if ($part[1] != self::T_ARRAY && $part[0] instanceof Variable) {
                         $value = substr($value, 1);
+                        if ($parts) {
+                            $parts[] = $value;
+                        }
                     } else {
                         $value = '{' . $value . '}';
+                        $parts = false;
                     }
                     $variable .= '->' . $value;
                     break;
@@ -109,9 +119,12 @@ class Variable extends Term
             case self::T_OBJECT:
                 if ($part[1] != self::T_ARRAY && $part[0] instanceof Variable) {
                     $value   = substr($value, 1);
-                    $parts[] = $value;
+                    if ($parts) {
+                        $parts[] = $value;
+                    }
                 } else {
                     $value = '{' . $value . '}';
+                    $parts = false;
                 }
                 $variable .= '->' . $value;
                 break;
@@ -119,7 +132,11 @@ class Variable extends Term
             case self::T_ARRAY:
                 if ($part[1] != self::T_ARRAY && $part[0] instanceof Variable) {
                     $value   = '"' .  substr($value, 1) . '"';
-                    $parts[] = $value;
+                    if ($parts) {
+                        $parts[] = $value;
+                    }
+                } else {
+                    $parts = false;
                 }
                 $variable .= '[' . $value . ']';
                 break;

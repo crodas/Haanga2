@@ -83,10 +83,11 @@ class Tokenizer
         '<|'    => Parser::T_PIPE,
         '|'     => Parser::T_FILTER_PIPE,
         '{'     => Parser::T_CURLY_OPEN,
-        '}'     => Parser::T_CURLY_OPEN,
-        '['     => Parser::T_BRACKETS_OPEN,
-        ']'     => Parser::T_BRACKETS_CLOSE,
+        '}'     => Parser::T_CURLY_CLOSE,
+        '['     => Parser::T_BRACKET_OPEN,
+        ']'     => Parser::T_BRACKET_CLOSE,
         ','     => Parser::T_COMMA,
+        '~'     => Parser::T_CONCAT,
     );
 
     protected $tags = array();

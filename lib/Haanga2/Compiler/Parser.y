@@ -67,7 +67,7 @@ use Haanga2\Compiler\Parser\Term,
 %left T_OR.
 %left T_QUESTION T_COLON.
 %left T_COMMA.
-%left T_DOT T_OBJ T_BRACKETS_OPEN. 
+%left T_DOT T_OBJ T_BRACKET_OPEN. 
 %nonassoc T_NE.
 %nonassoc T_EQ.
 %nonassoc T_GT T_GE T_LT T_LE.
@@ -120,11 +120,15 @@ code(A) ::= T_SET variable(B) T_ASSIGN expr(C) . { A = new DefVariable(B, C); }
 // }}}
 
 // variable {{{
+variable(A) ::= variable(B) var_part(X) . { A = B; B->addPart(X[1], X[0]); }
+variable(A) ::= variable(B) T_OBJ|T_DOT variable(C) . { A = B; A->addPart(C, T_OBJECT); }
 variable(A) ::= alpha(B) . { A = new Variable(B); }
 variable(A) ::= T_DOLLAR alpha(B) . { A = new Variable(B, Variable::T_OBJECT); }
 variable(A) ::= T_AT alpha(B) . { A = new Variable(B, Variable::T_ARRAY); }
-variable(A) ::= variable(B) T_DOT|T_OBJ variable(C) . { B->addPart(C, Variable::T_OBJECT); A = B; }
-variable(A) ::= variable(B) T_BRACKETS_OPEN expr(C) T_BRACKETS_CLOSE . { B->addPart(C, Variable::T_ARRAY); A = B ; }
+
+var_part(A) ::= T_BRACKET_OPEN expr(C) T_BRACKET_CLOSE . { A = array(Variable::T_ARRAY, C); }
+var_part(A) ::= T_CURLY_OPEN expr(C) T_CURLY_CLOSE . { A = array(Variable::T_OBJECT, C); }
+
 // }}} 
 
 // expr {{{
@@ -156,7 +160,7 @@ alpha(A) ::= T_ALPHA(X) . { A = X; }
 
 // json {{{
 json(A) ::= T_CURLY_OPEN json_obj(B) T_CURLY_CLOSE. { A  = B; }
-json(A) ::= T_BRACKETS_OPEN json_arr(B) T_BRACKETS_CLOSE. { A = B; }
+json(A) ::= T_BRACKET_OPEN json_arr(B) T_BRACKET_CLOSE. { A = B; }
 
 json_obj(A) ::= json_obj(B) T_COMMA json_obj(C). { A = B; B[] = C; }
 json_obj(A) ::= term_simple(B) T_COLON expr(C) . { A = array('key' => B, 'value' => C); } 
