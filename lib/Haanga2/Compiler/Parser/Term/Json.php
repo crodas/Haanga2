@@ -39,69 +39,25 @@ namespace Haanga2\Compiler\Parser\Term;
 use Haanga2\Compiler\Parser\Term,
     Haanga2\Compiler\Dumper;
 
-class Variable extends Term
+class Json extends Term
 {
-    const T_OBJECT = 1;
-    const T_ARRAY  = 2;
-    const T_DOT    = 3;
-
-    protected $name;
-    protected $dot;
-    protected $parts = array();
-
-    public function __construct($name, $dot = NULL)
+    protected $struct;
+    public function __construct(Array $struct)
     {
-        $this->name = $name;
-        $this->dot  = $dot;
-    }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    public function isObject()
-    {
-        return count($this->parts) > 0;
-    }
-
-    public function addPart($part, $default)
-    {
-        $this->parts[] = func_get_args();
+        $this->struct = $struct;
     }
 
     public function toString(Dumper $vm)
     {
-        $variable = '$' . $this->name;
-        $treatDot = $this->dot;
-
-        foreach ($this->parts as $part) {
-            $value = $part[0]->toString($vm);
-            switch ($part[1]) {
-            case self::T_DOT:
-                $value = substr($value, 1);
-                if ($treatDot == self::T_ARRAY) {
-                    $variable .= '["' . $value . '"]';
-                } else {
-                    $variable .= '->' . $value;
-                }
-                break;
-            case self::T_OBJECT:
-                $variable .= '->{' . $value . '}';
-                break;
-
-            case self::T_ARRAY:
-                $variable .= '[' . $value . ']';
-                break;
+        $code = "array(";
+        foreach ($this->struct as $elem) {
+            if (isset($elem['key'])) {
+                $code .= $elem['key']->toString($vm) . ' => ';
             }
+            $code .= $elem['value']->toString($vm) . ',';
         }
-        return $variable;
+        $code = (substr($code, -1) == ',' ? substr($code, 0,  -1) : $code) .  ")";
+        return $code;
     }
 }
-
 

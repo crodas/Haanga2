@@ -161,11 +161,22 @@ alpha(A) ::= T_ALPHA(X) . { A = X; }
 json(A) ::= T_CURLY_OPEN json_obj(B) T_CURLY_CLOSE. { A  = B; }
 json(A) ::= T_BRACKET_OPEN json_arr(B) T_BRACKET_CLOSE. { A = B; }
 
-json_obj(A) ::= json_obj(B) T_COMMA json_obj(C). { A = B; B[] = C; }
-json_obj(A) ::= term_simple(B) T_COLON expr(C) . { A = array('key' => B, 'value' => C); } 
+json_obj(A) ::= json_obj(B) T_COMMA json_obj(C). { A = array_merge(B, C); }
+json_obj(A) ::= T_LPARENT expr(B) T_RPARENT T_COLON expr(C) . { A = array(array('key' => new Expr(B), 'value' => C)); }
+json_obj(A) ::= term_simple(B) T_COLON expr(C) . { 
+    if (B instanceof Variable) {
+        if (B->isObject()) {
+            throw new \RuntimeException("Invalid key name");
+        }
+        B = new Term\String(B->getName());
+    }
+    A = array(array('key' => B, 'value' => C)); 
+} 
+json_obj(A) ::= . { A = array(); }
 
-json_arr(X) ::= json_arr(A) T_COMMA expr(B) .  { X = A; X[] = B; }
-json_arr(A) ::= expr(B). { A = array(B); }
+json_arr(X) ::= json_arr(A) T_COMMA json_arr(B) .  { X = array_merge(A, B); }
+json_arr(A) ::= expr(B). { A = array(array('value' => B)); }
+json_arr(A) ::= . { A = array(); }
 // }}}
 
 // term filter (nested) {{{ 
