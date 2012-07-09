@@ -40,6 +40,27 @@ class Dumper
 {
     public $buffer = "";
     public $level  = 0;
+    public $context = array();
+
+    public function setContext(Array $context)
+    {
+        $this->context = array_merge($this->context, $context);
+    }
+
+    public function contextQuery(Array $query)
+    {
+        $ctx = $this->context;
+        foreach ($query as $part) {
+            if (is_array($ctx) && array_key_exists($part, $ctx)) {
+                $ctx = $ctx[$part];
+            } else if (is_object($ctx) && property_exists($ctx, $part)) {
+                $ctx = $ctx->part;
+            } else {
+                return NULL;
+            }
+        }
+        return $ctx;
+    }
 
     public function writeLn($line)
     {

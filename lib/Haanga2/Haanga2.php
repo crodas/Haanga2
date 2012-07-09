@@ -52,7 +52,7 @@ class Haanga2
         $this->Extension = new Extension($this->Tokenizer);
     }
 
-    public function compile($source)
+    public function compile($source, $context = array())
     {
         $tokens = $this->Tokenizer->tokenize($source);
         $parser = new Parser;
@@ -61,7 +61,8 @@ class Haanga2
         }
         $parser->doParse(0, 0);
         $tree = $parser->body;
-        $vm   = new Compiler\Dumper;
+        $vm   = new Compiler\Dumper();
+        $vm->setContext($context);
         $vm->writeLn('function ($context, $return)')
             ->writeLn('{')
             ->indent()
@@ -79,6 +80,6 @@ class Haanga2
         }
 
         /* compile, compile, compile! */
-        $this->compile($this->loader->getContent($tpl));
+        $this->compile($this->loader->getContent($tpl), $vars);
     }
 }

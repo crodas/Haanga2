@@ -73,21 +73,23 @@ class Variable extends Term
     public function toString(Dumper $vm)
     {
         $variable = '$' . $this->name;
+        $parts    = array($this->name);
+        $type     = $this->getType();
         foreach ($this->parts as $part) {
             $value = $part[0]->toString($vm);
-            if ($part[0] instanceof Variable) {
-                $type = $part[0]->getType();
-            } else {
-                $type = self::T_GUESS;
-            }
-
             switch ($type) {
             case self::T_GUESS:
-                // we need to guess the variable type
-                // TODO:
-                //  need to get access to the context if there
-                //  is one (in cli we there isn't one) and check
-                //  the current value;
+                // we need to guess the variable type,
+                // in order to get a better result we
+                // check the current value in the context. If
+                // we can't find them, we give up, we use their
+                // default type
+                $ctxValue = $vm->contextQuery($parts);
+                if (is_array($ctxValue)) {
+                    $part[1] = self::T_ARRAY;
+                } else if (is_object($ctxValue)) {
+                    $part[1] = self::T_OBJECT;
+                }
                 switch ($part[1]) {
                 case self::T_OBJECT:
                     if ($part[0] instanceof Variable) {
@@ -104,8 +106,11 @@ class Variable extends Term
                 break;
 
             case self::T_OBJECT:
-                if ($part[1] !== self::T_ARRAY) {
-                    $value = substr($value, 1);
+                if ($part[0] instanceof Variable) {
+                    $value   = substr($value, 1);
+                    $parts[] = $value;
+                } else {
+                    $value = '{' . $value . '}';
                 }
                 $variable .= '->' . $value;
                 break;
@@ -114,6 +119,16 @@ class Variable extends Term
                 $variable .= '[' . $value . ']';
                 break;
             }
+
+            // Get the current variable type, so we
+            //  know how to deal the sub-element /property
+            //  of this element if there is any.
+            if ($part[0] instanceof Variable) {
+                $type = $part[0]->getType();
+            } else {
+                $type = self::T_GUESS;
+            }
+
         }
         return $variable;
     }
