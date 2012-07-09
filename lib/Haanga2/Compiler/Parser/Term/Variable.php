@@ -85,14 +85,15 @@ class Variable extends Term
                 // we can't find them, we give up, we use their
                 // default type
                 $ctxValue = $vm->contextQuery($parts);
+                $type = $part[1];
                 if (is_array($ctxValue)) {
-                    $part[1] = self::T_ARRAY;
+                    $type = self::T_ARRAY;
                 } else if (is_object($ctxValue)) {
-                    $part[1] = self::T_OBJECT;
+                    $type = self::T_OBJECT;
                 }
-                switch ($part[1]) {
+                switch ($type) {
                 case self::T_OBJECT:
-                    if ($part[0] instanceof Variable) {
+                    if ($part[1] != self::T_ARRAY && $part[0] instanceof Variable) {
                         $value = substr($value, 1);
                     } else {
                         $value = '{' . $value . '}';
@@ -106,7 +107,7 @@ class Variable extends Term
                 break;
 
             case self::T_OBJECT:
-                if ($part[0] instanceof Variable) {
+                if ($part[1] != self::T_ARRAY && $part[0] instanceof Variable) {
                     $value   = substr($value, 1);
                     $parts[] = $value;
                 } else {
@@ -116,6 +117,10 @@ class Variable extends Term
                 break;
 
             case self::T_ARRAY:
+                if ($part[1] != self::T_ARRAY && $part[0] instanceof Variable) {
+                    $value   = '"' .  substr($value, 1) . '"';
+                    $parts[] = $value;
+                }
                 $variable .= '[' . $value . ']';
                 break;
             }
