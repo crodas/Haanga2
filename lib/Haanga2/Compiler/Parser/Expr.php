@@ -49,6 +49,9 @@ class Expr
 
     public function toString(Dumper $vm)
     {
+        if (count($this->value) == 1 && $this->value[0] instanceof self) {
+            return '(' . $this->value[0]->toString($vm) . ')';
+        }
         return implode(" ", array_map(function($v) use ($vm) {
             return is_object($v) ? $v->toString($vm) : ($v == '~' ? '.' : $v);
         }, $this->value));
