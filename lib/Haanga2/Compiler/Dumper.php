@@ -95,6 +95,11 @@ class Dumper
         return $this->buffer;
     }
 
+    public function method($name)
+    {
+        return $this->writeLn('public static function ' . $name . '(\Haanga2\Haanga2 $__self, $__context)');
+    }
+
     public function writeLn($line)
     {
         $this->write($line . "\n");

@@ -80,6 +80,7 @@ class Variable extends Term
 
     public function addPart($part, $default)
     {
+        $part->isLocal();
         $this->parts[] = func_get_args();
     }
 
@@ -88,7 +89,7 @@ class Variable extends Term
         if ($this->local || $vm->isLocalVariable($this)) {
             $variable = '$' . $this->name;
         } else {
-            $variable = '$context["' . $this->name . '"]';
+            $variable = '$__context["' . $this->name . '"]';
         }
         $treatDot = $this->dot;
 

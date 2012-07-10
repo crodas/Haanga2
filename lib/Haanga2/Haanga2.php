@@ -53,7 +53,7 @@ class Haanga2
         $this->Extension->addDirectory(__DIR__ . '/Extension');
     }
 
-    public function compile($source, $context = array())
+    public function compile($source, $id)
     {
         $tokens = $this->Tokenizer->tokenize($source);
         $parser = new Parser;
@@ -63,11 +63,11 @@ class Haanga2
         $parser->doParse(0, 0);
         $opt = new Compiler\Optimizer;
         $vm  = new Compiler\Dumper($opt, $this->Extension);
-        $vm->writeLn('class template')
+        $vm->writeLn('class haanga2_' . $id)
             ->writeLn('{')
             ->indent();
 
-        $vm->writeLn('public static function main($context)')
+        $vm->method('main')
             ->writeLn('{')
             ->indent()
                 ->evaluate($parser->body)
@@ -76,7 +76,7 @@ class Haanga2
 
         foreach ($vm->getSubModules() as $name => $body) {
             $vm->writeLn('')
-                ->writeLn('public static function ' . $name .  '($context)')
+                ->method($name)
                 ->writeLn('{')
                 ->indent()
                     ->evaluate($body)
@@ -86,17 +86,38 @@ class Haanga2
 
         $vm->dedent()
            ->writeLn('}'); 
-        echo $vm->getBuffer();
+        $code = $vm->getBuffer();
+
+        // evaluate code
+        eval('namespace { ' . $code . ' }');
+
+        return $code;
+    }
+
+    public function templateIdToClass($name)
+    {
+        return 'haanga2_' . $name;
     }
 
     public function load($tpl, $vars = array(), $return = false)
     {
-        $callback = $this->loader->load($tpl);
-        if ($callback && is_callable($callback)) {
-            return $callback($tpl, $vars, $return);
+        $tplId = $this->loader->getTplId($tpl);
+        $class = $this->templateIdToClass($tplId);
+        if (class_exists($class, false)) {
+            return $class::main($this, $vars);
+        }
+
+        if ($this->loader->load($class, $tpl)) {
+            return $class::main($this, $vars);
         }
 
         /* compile, compile, compile! */
-        $this->compile($this->loader->getContent($tpl), $vars);
+        $code = $this->compile($this->loader->getContent($tpl), $tplId);
+
+        /* save execute */
+        $class::main($this, $vars);
+
+        /* save! */
+        $this->loader->save($tpl, $code);
     }
 }

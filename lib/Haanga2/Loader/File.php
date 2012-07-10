@@ -84,6 +84,9 @@ class File implements Loader
 
     public function getTplId($path)
     {
+        if ($path[0] !== '/') {
+            $path = $this->getTplPath($path);
+        }
         return sha1($path);
     }
 
@@ -94,24 +97,19 @@ class File implements Loader
         $compiled = $this->output . '/' . $callback . '.php';
         
         // we do not care if this fails
-        Artifex::save($compiled, $code);
+        Artifex::save($compiled, "<?php\n" . $code);
     }
 
-    public function load($tpl)
+    public function load($class, $tpl)
     {
-        $path = $this->getTplPath($tpl);
-        $callback = 'haanga2_' . $this->getTplId($path);
-        if (is_callable($callback)) {
-            return $callback;
-        }
-        
-        $compiled = $this->output . '/' . $callback . '.php';
+        $path     = $this->getTplPath($tpl);
+        $compiled = $this->output . '/' . $class . '.php';
         if (is_file($compiled) && filemtime($compiled) > filemtime($path)) { 
             /* load the compiled php only if the compiled
                version is newer than our tpl file */
             require $compiled;
-            if (is_callable($callback)) {
-                return $callback;
+            if (class_exists($class, false)) {
+                return true;
             }
         }
 

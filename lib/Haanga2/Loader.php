@@ -38,7 +38,7 @@ namespace Haanga2;
 
 interface Loader
 {
-    public function load($tpl);
+    public function load($class, $tpl);
 
     public function getContent($tpl);
 

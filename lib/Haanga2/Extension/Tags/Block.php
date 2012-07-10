@@ -54,5 +54,5 @@ function Block(Dumper $vm, Array $args, Array $body)
     $name = $args[0]->getName();
     $name = 'block_' . (!preg_match('/^[a-z][0-9_a-z]*$/', $name) ? sha1($name) : $name);
     $vm->registerSubmodule($name, $body);
-    $vm->writeLn('self::' . $name . '($context);');
+    $vm->writeLn('self::' . $name . '($__self, $__context);');
 }
