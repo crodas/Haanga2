@@ -43,6 +43,7 @@ use Haanga2\Compiler\Parser\Term,
     Haanga2\Compiler\Parser\DoFor,
     Haanga2\Compiler\Parser\Method,
     Haanga2\Compiler\Parser\DefVariable,
+    Haanga2\Compiler\Parser\Tag,
     Haanga2\Compiler\Parser\DoIf;
 
 }
@@ -97,8 +98,8 @@ code(A) ::= T_ECHO expr(X) . { A = new DoPrint(X); }
 code(A) ::= T_FOR for_dest(X) T_IN for_source(C) body(Y) for_end(Z). { A = new DoFor(X, C, Y, Z); }
 for_source(A) ::= term(B) . { A = B; }
 for_source(A) ::= T_LPARENT expr(B) T_RPARENT . { A = B; }
-for_dest(A) ::= variable(X) . { A = array(X); }
-for_dest(A) ::= variable(X) T_COMMA variable(Y) . { A = array(Y, X); }
+for_dest(A) ::= local_variable(X) . { A = array(X); }
+for_dest(A) ::= local_variable(X) T_COMMA local_variable(Y) . { A = array(Y, X); }
 for_end(A)  ::= T_EMPTY body(X) T_END|T_ENDFOR . { A = X; }
 for_end(A)  ::= T_END|T_ENDFOR . { A = array(); }
 // }}}
@@ -120,6 +121,12 @@ code(A) ::= T_SET variable(B) T_ASSIGN expr(C) . { A = new DefVariable(B, C); }
 // }}}
 
 // variable {{{
+local_variable(A) ::= variable(B) . {
+    if (B->isObject()) {
+        throw new \RuntimeException("Variable is an object or array, scalar is expected");
+    }
+    A = B;
+}
 variable(A) ::= variable(B) var_part(X) . { A = B; B->addPart(X[1], X[0]); }
 variable(A) ::= variable(B) T_OBJ|T_DOT variable(C) . { A = B; A->addPart(C, Variable::T_DOT); }
 variable(A) ::= alpha(B) . { A = new Variable(B); }

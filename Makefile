@@ -11,4 +11,4 @@ compiler:
 
 
 autoloader:
-	php ../Autoloader/autoloader.phar generate --library lib/Haanga2/autoload.php lib/ vendor/crodas/
+	php ../Autoloader/autoloader.phar generate --library lib/Haanga2/autoload.php lib/ vendor

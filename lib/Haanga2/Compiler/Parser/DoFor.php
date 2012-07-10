@@ -60,8 +60,14 @@ class DoFor
     public function generate(Dumper $vm)
     { 
         $source = $this->source->toString($vm);
-        $dest   = $this->key ? $this->key->toString($vm) . " => " : "";
-        $dest  .= $this->value->toString($vm);
+        $dest   = $this->key ? $this->key->isLocal()->toString($vm) . " => " : "";
+        $dest  .= $this->value->isLocal()->toString($vm);
+
+        if ($this->key) {
+            $vm->setLocalVariable($this->key);
+        }
+        $vm->setLocalVariable($this->value);
+
 
         if ($this->else) {
             // we should copy the result of the source
@@ -91,5 +97,10 @@ class DoFor
             $vm->dedent()
                 ->writeLn('}');
         }
+
+        if ($this->key) {
+            $vm->setLocalVariable($this->key, false);
+        }
+        $vm->setLocalVariable($this->value, false);
     }
 }

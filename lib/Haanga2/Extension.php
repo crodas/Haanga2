@@ -43,10 +43,19 @@ class Extension
 {
     protected $tags = array();
     protected $tokenizer = NULL;
+    protected $scanned = array();
 
     public function __construct(Compiler\Tokenizer $tokenizer)
     {
         $this->tokenizer = $tokenizer;
+    }
+
+    public function getTag($tag)
+    {
+        if (!isset($this->tags[$tag])) {
+            throw new \RuntimeException("Cannot find tag {$tag}");
+        }
+        return $this->tags[$tag];
     }
 
     public function addDirectory($dir)
@@ -54,6 +63,11 @@ class Extension
         if (!is_dir($dir)) {
             throw new \RuntimeException("{$dir} is not a valid directory");
         }
+        if (isset($this->scanned[$dir])) {
+            return $this;
+        }
+
+        $this->scanned[$dir] = true;
 
         $files = new Finder;
         $files->files()
@@ -74,18 +88,23 @@ class Extension
                         }
                     }
 
+                    if (count($callback) == 1) {
+                        $callback = $callback[0];
+                    }
+
                     $name  = $tag['args']['name'];
                     $block = !empty($tag['args']['block']);
-                    $this->tags[$name] = array(
+                    $this->tags[$name] = array_merge($tag['args'], array(
                         'block'     => $block,
                         'callback'  => $callback,
                         'file'      => $obj['file'],
-                    );
+                    ));
                     $this->tokenizer->registerTag($name, $block);
                 }
             }
         }
 
+        return $this;
     }
 
 }

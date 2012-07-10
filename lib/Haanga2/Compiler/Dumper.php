@@ -36,30 +36,63 @@
 */
 namespace Haanga2\Compiler;
 
+use \Haanga2\Extension,
+    \Haanga2\Compiler\Parser\Term\Variable;
+
 class Dumper
 {
-    public $buffer = "";
-    public $level  = 0;
-    public $context = array();
+    protected $buffer = "";
+    protected $level  = 0;
+    protected $name   = 'main';
+    protected $modules = array();
+    protected $localVars = array();
+    protected $opt;
+    protected $ext;
 
-    public function setContext(Array $context)
+    public function __construct(Optimizer $opt, Extension $ext)
     {
-        $this->context = array_merge($this->context, $context);
+        $this->opt = $opt;
+        $this->ext = $ext;
     }
 
-    public function contextQuery(Array $query)
+    public function getSubModules()
     {
-        $ctx = $this->context;
-        foreach ($query as $part) {
-            if (is_array($ctx) && array_key_exists($part, $ctx)) {
-                $ctx = $ctx[$part];
-            } else if (is_object($ctx) && property_exists($ctx, $part)) {
-                $ctx = $ctx->part;
-            } else {
-                return NULL;
-            }
+        return $this->modules;
+    }
+
+    public function isLocalVariable(Variable $v)
+    {
+        return isset($this->localVars[$v->getName()]);
+    }
+
+    public function setLocalVariable(Variable $v, $isLocal = true)
+    {
+        $name = $v->getName();
+        if ($isLocal) {
+            $this->localVars[$name] = true;
+        } else if (isset($this->localVars[$name])) {
+            unset($this->locaVars[$name]);
         }
-        return $ctx;
+        return $this;
+    }
+
+    public function registerSubmodule($name, Array $body)
+    {
+        if (isset($this->modules[$name])) {
+            throw new \RuntimeException("Cannot create submodule {$name}, it already exists");
+        }
+        $this->modules[$name] = $body;
+        return $this;
+    }
+
+    public function getTag($tag)
+    {
+        return $this->ext->getTag($tag);
+    }
+
+    public function getBuffer()
+    {
+        return $this->buffer;
     }
 
     public function writeLn($line)
@@ -91,7 +124,6 @@ class Dumper
         return $this;
     }
 
-
     public function doPrint($expr)
     {
         if (is_object($expr) && is_callable(array($expr, 'toString'))) {
@@ -107,7 +139,7 @@ class Dumper
     public function evaluate($obj)
     {
         if (is_array($obj)) {
-            foreach ($obj as $i) {
+            foreach ($this->opt->optimize($obj) as $i) {
                 $i->generate($this);
             }
         } else {

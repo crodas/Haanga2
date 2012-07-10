@@ -48,6 +48,7 @@ class Variable extends Term
     protected $name;
     protected $dot;
     protected $parts = array();
+    protected $local;
 
     public function __construct($name, $dot = NULL)
     {
@@ -65,6 +66,13 @@ class Variable extends Term
         return $this->name;
     }
 
+    public function isLocal($local = true)
+    {
+        $this->local = $local;
+
+        return $this;
+    }
+
     public function isObject()
     {
         return count($this->parts) > 0;
@@ -77,7 +85,11 @@ class Variable extends Term
 
     public function toString(Dumper $vm)
     {
-        $variable = '$' . $this->name;
+        if ($this->local || $vm->isLocalVariable($this)) {
+            $variable = '$' . $this->name;
+        } else {
+            $variable = '$context["' . $this->name . '"]';
+        }
         $treatDot = $this->dot;
 
         foreach ($this->parts as $part) {

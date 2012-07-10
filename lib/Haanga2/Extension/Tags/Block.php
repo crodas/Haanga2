@@ -34,45 +34,25 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
-namespace Haanga2\Compiler;
 
-class Optimizer
+namespace Haanga2\Extension\Tags;
+
+use Haanga2\Compiler\Dumper,
+    Haanga2\Compiler\Parser\Term\Variable;
+
+/**
+ *  @Haanga2\Tag(name="block", block=true)
+ */
+function Block(Dumper $vm, Array $args, Array $body)
 {
-
-    public function optimize(Array $tree)
-    {
-        $tree = $this->optimizeEcho($tree);
-        return array_values($tree);
+    if (count($args) != 1) {
+        throw new \RuntimeException("Block expects one argument");
     }
-
-    public function optimizeEcho($tree)
-    {
-        $total = count($tree);
-        for($i = 0; $i < $total; $i++) {
-            if ($tree[$i] instanceof Parser\DoPrint) {
-                $print  = &$tree[$i++];
-                $values = array();
-                for (; $i < $total; $i++) {
-                    if (!($tree[$i] instanceof Parser\DoPrint)) {
-                        break;
-                    }
-                    $values[] = $tree[$i]->getValue();
-                    unset($tree[$i]);
-                }
-                if (count($values) > 0) {
-                    $expr = array($print->getValue());
-                    foreach ($values as $value) {
-                        if (!($value instanceof Parser\Term\String)) {
-                            $value = new Parser\Expr($value);
-                        }
-                        $expr[] = '~';
-                        $expr[] = $value;
-                    }
-                    $print->setValue(Parser\Expr::FromArray($expr));
-                }
-            }
-        }
-        return $tree;
+    if (!$args[0] instanceof Variable) {
+        throw new \RuntimeException("Block name must be a variable");
     }
-
+    $name = $args[0]->getName();
+    $name = 'block_' . (!preg_match('/^[a-z][0-9_a-z]*$/', $name) ? sha1($name) : $name);
+    $vm->registerSubmodule($name, $body);
+    $vm->writeLn('self::' . $name . '($context);');
 }

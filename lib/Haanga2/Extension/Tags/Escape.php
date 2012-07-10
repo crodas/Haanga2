@@ -35,10 +35,7 @@
   +---------------------------------------------------------------------------------+
 */
 
-namespace Haanga2\Extension\Tag\Escape;
-
-use Haanga2\Compiler,
-    Haanga2\Compiler\Compiler,
+namespace Haanga2\Extension\Tags;
     Haanga2\Compiler\Types\Variable;
 
 class Escape

@@ -50,6 +50,7 @@ class Haanga2
         $this->loader = $loader;
         $this->Tokenizer = new Tokenizer;
         $this->Extension = new Extension($this->Tokenizer);
+        $this->Extension->addDirectory(__DIR__ . '/Extension');
     }
 
     public function compile($source, $context = array())
@@ -60,16 +61,32 @@ class Haanga2
             $parser->doParse($token[0], $token[1]);
         }
         $parser->doParse(0, 0);
-        $tree = new Compiler\Optimizer($parser->body);
-        $vm   = new Compiler\Dumper();
-        $vm->setContext($context);
-        $vm->writeLn('function ($context, $return)')
+        $opt = new Compiler\Optimizer;
+        $vm  = new Compiler\Dumper($opt, $this->Extension);
+        $vm->writeLn('class template')
+            ->writeLn('{')
+            ->indent();
+
+        $vm->writeLn('public static function main($context)')
             ->writeLn('{')
             ->indent()
-                ->evaluate($tree->getIterator())
+                ->evaluate($parser->body)
             ->dedent()
-            ->writeLn('}');
-        die($vm->buffer);
+            ->writeLn('}'); 
+
+        foreach ($vm->getSubModules() as $name => $body) {
+            $vm->writeLn('')
+                ->writeLn('public static function ' . $name .  '($context)')
+                ->writeLn('{')
+                ->indent()
+                    ->evaluate($body)
+               ->dedent()
+               ->writeLn('}'); 
+        }
+
+        $vm->dedent()
+           ->writeLn('}'); 
+        echo $vm->getBuffer();
     }
 
     public function load($tpl, $vars = array(), $return = false)

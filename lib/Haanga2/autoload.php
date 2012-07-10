@@ -15,7 +15,7 @@ spl_autoload_register(function ($class) {
 
     // classes {{{
     static $classes = array (
-  'haanga2\\extension\\tag\\escape\\escape' => '/Extension/Tags/Escape.php',
+  'haanga2\\extension\\tags\\escape' => '/Extension/Tags/Escape.php',
   'haanga2\\haanga2' => '/Haanga2.php',
   'haanga2\\compiler\\dumper' => '/Compiler/Dumper.php',
   'haanga2\\compiler\\tokenizer' => '/Compiler/Tokenizer.php',
@@ -34,12 +34,59 @@ spl_autoload_register(function ($class) {
   'haanga2\\compiler\\parser\\term' => '/Compiler/Parser/Term.php',
   'haanga2\\compiler\\parser\\defvariable' => '/Compiler/Parser/DefVariable.php',
   'haanga2\\compiler\\parser\\doprint' => '/Compiler/Parser/DoPrint.php',
+  'haanga2\\compiler\\parser\\tag' => '/Compiler/Parser/Tag.php',
   'haanga2\\cli\\build' => '/Cli/Build.php',
   'haanga2\\cli\\compiler' => '/Cli/Compiler.php',
   'haanga2\\loader' => '/Loader.php',
   'haanga2\\cli' => '/Cli.php',
   'haanga2\\extension' => '/Extension.php',
   'haanga2\\loader\\file' => '/Loader/File.php',
+  'symfony\\component\\console\\output\\nulloutput' => '/../../vendor/symfony/console/Symfony/Component/Console/Output/NullOutput.php',
+  'symfony\\component\\console\\output\\output' => '/../../vendor/symfony/console/Symfony/Component/Console/Output/Output.php',
+  'symfony\\component\\console\\output\\consoleoutputinterface' => '/../../vendor/symfony/console/Symfony/Component/Console/Output/ConsoleOutputInterface.php',
+  'symfony\\component\\console\\output\\outputinterface' => '/../../vendor/symfony/console/Symfony/Component/Console/Output/OutputInterface.php',
+  'symfony\\component\\console\\output\\streamoutput' => '/../../vendor/symfony/console/Symfony/Component/Console/Output/StreamOutput.php',
+  'symfony\\component\\console\\output\\consoleoutput' => '/../../vendor/symfony/console/Symfony/Component/Console/Output/ConsoleOutput.php',
+  'symfony\\component\\console\\application' => '/../../vendor/symfony/console/Symfony/Component/Console/Application.php',
+  'symfony\\component\\console\\helper\\formatterhelper' => '/../../vendor/symfony/console/Symfony/Component/Console/Helper/FormatterHelper.php',
+  'symfony\\component\\console\\helper\\helper' => '/../../vendor/symfony/console/Symfony/Component/Console/Helper/Helper.php',
+  'symfony\\component\\console\\helper\\helperinterface' => '/../../vendor/symfony/console/Symfony/Component/Console/Helper/HelperInterface.php',
+  'symfony\\component\\console\\helper\\helperset' => '/../../vendor/symfony/console/Symfony/Component/Console/Helper/HelperSet.php',
+  'symfony\\component\\console\\helper\\dialoghelper' => '/../../vendor/symfony/console/Symfony/Component/Console/Helper/DialogHelper.php',
+  'symfony\\component\\console\\shell' => '/../../vendor/symfony/console/Symfony/Component/Console/Shell.php',
+  'symfony\\component\\console\\formatter\\outputformatterstyleinterface' => '/../../vendor/symfony/console/Symfony/Component/Console/Formatter/OutputFormatterStyleInterface.php',
+  'symfony\\component\\console\\formatter\\outputformatterinterface' => '/../../vendor/symfony/console/Symfony/Component/Console/Formatter/OutputFormatterInterface.php',
+  'symfony\\component\\console\\formatter\\outputformatterstyle' => '/../../vendor/symfony/console/Symfony/Component/Console/Formatter/OutputFormatterStyle.php',
+  'symfony\\component\\console\\formatter\\outputformatterstylestack' => '/../../vendor/symfony/console/Symfony/Component/Console/Formatter/OutputFormatterStyleStack.php',
+  'symfony\\component\\console\\formatter\\outputformatter' => '/../../vendor/symfony/console/Symfony/Component/Console/Formatter/OutputFormatter.php',
+  'symfony\\component\\console\\input\\arrayinput' => '/../../vendor/symfony/console/Symfony/Component/Console/Input/ArrayInput.php',
+  'symfony\\component\\console\\input\\input' => '/../../vendor/symfony/console/Symfony/Component/Console/Input/Input.php',
+  'symfony\\component\\console\\input\\inputoption' => '/../../vendor/symfony/console/Symfony/Component/Console/Input/InputOption.php',
+  'symfony\\component\\console\\input\\inputinterface' => '/../../vendor/symfony/console/Symfony/Component/Console/Input/InputInterface.php',
+  'symfony\\component\\console\\input\\argvinput' => '/../../vendor/symfony/console/Symfony/Component/Console/Input/ArgvInput.php',
+  'symfony\\component\\console\\input\\inputargument' => '/../../vendor/symfony/console/Symfony/Component/Console/Input/InputArgument.php',
+  'symfony\\component\\console\\input\\stringinput' => '/../../vendor/symfony/console/Symfony/Component/Console/Input/StringInput.php',
+  'symfony\\component\\console\\input\\inputdefinition' => '/../../vendor/symfony/console/Symfony/Component/Console/Input/InputDefinition.php',
+  'symfony\\component\\console\\command\\listcommand' => '/../../vendor/symfony/console/Symfony/Component/Console/Command/ListCommand.php',
+  'symfony\\component\\console\\command\\command' => '/../../vendor/symfony/console/Symfony/Component/Console/Command/Command.php',
+  'symfony\\component\\console\\command\\helpcommand' => '/../../vendor/symfony/console/Symfony/Component/Console/Command/HelpCommand.php',
+  'symfony\\component\\finder\\comparator\\numbercomparator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Comparator/NumberComparator.php',
+  'symfony\\component\\finder\\comparator\\comparator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Comparator/Comparator.php',
+  'symfony\\component\\finder\\comparator\\datecomparator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Comparator/DateComparator.php',
+  'symfony\\component\\finder\\glob' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Glob.php',
+  'symfony\\component\\finder\\finder' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Finder.php',
+  'symfony\\component\\finder\\iterator\\filetypefilteriterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/FileTypeFilterIterator.php',
+  'symfony\\component\\finder\\iterator\\customfilteriterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/CustomFilterIterator.php',
+  'symfony\\component\\finder\\iterator\\excludedirectoryfilteriterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/ExcludeDirectoryFilterIterator.php',
+  'symfony\\component\\finder\\iterator\\sizerangefilteriterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/SizeRangeFilterIterator.php',
+  'symfony\\component\\finder\\iterator\\multiplepcrefilteriterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/MultiplePcreFilterIterator.php',
+  'symfony\\component\\finder\\iterator\\daterangefilteriterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/DateRangeFilterIterator.php',
+  'symfony\\component\\finder\\iterator\\recursivedirectoryiterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/RecursiveDirectoryIterator.php',
+  'symfony\\component\\finder\\iterator\\filecontentfilteriterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/FilecontentFilterIterator.php',
+  'symfony\\component\\finder\\iterator\\filenamefilteriterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/FilenameFilterIterator.php',
+  'symfony\\component\\finder\\iterator\\depthrangefilteriterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/DepthRangeFilterIterator.php',
+  'symfony\\component\\finder\\iterator\\sortableiterator' => '/../../vendor/symfony/finder/Symfony/Component/Finder/Iterator/SortableIterator.php',
+  'symfony\\component\\finder\\splfileinfo' => '/../../vendor/symfony/finder/Symfony/Component/Finder/SplFileInfo.php',
   'notoj\\notoj' => '/../../vendor/crodas/Notoj/lib/Notoj/Notoj.php',
   'notoj\\file' => '/../../vendor/crodas/Notoj/lib/Notoj/File.php',
   'notoj\\annotation' => '/../../vendor/crodas/Notoj/lib/Notoj/Annotation.php',
@@ -71,6 +118,7 @@ spl_autoload_register(function ($class) {
   'artifex_parser' => '/../../vendor/crodas/Artifex/lib/Artifex/Parser.php',
   'artifex\\util\\phptokens' => '/../../vendor/crodas/Artifex/lib/Artifex/Util/PHPTokens.php',
   'artifex\\runtime' => '/../../vendor/crodas/Artifex/lib/Artifex/Runtime.php',
+  'composer\\autoload\\classloader' => '/../../vendor/composer/ClassLoader.php',
 );
     // }}}
 
@@ -83,6 +131,97 @@ spl_autoload_register(function ($class) {
   'haanga2\\compiler\\parser\\term' => 
   array (
     0 => 'haanga2\\compiler\\parser\\expr',
+  ),
+  'symfony\\component\\console\\output\\nulloutput' => 
+  array (
+    0 => 'symfony\\component\\console\\output\\outputinterface',
+    1 => 'symfony\\component\\console\\output\\output',
+  ),
+  'symfony\\component\\console\\output\\output' => 
+  array (
+    0 => 'symfony\\component\\console\\output\\outputinterface',
+  ),
+  'symfony\\component\\console\\output\\consoleoutputinterface' => 
+  array (
+    0 => 'symfony\\component\\console\\output\\outputinterface',
+  ),
+  'symfony\\component\\console\\output\\streamoutput' => 
+  array (
+    0 => 'symfony\\component\\console\\output\\outputinterface',
+    1 => 'symfony\\component\\console\\output\\output',
+  ),
+  'symfony\\component\\console\\output\\consoleoutput' => 
+  array (
+    0 => 'symfony\\component\\console\\output\\outputinterface',
+    1 => 'symfony\\component\\console\\output\\consoleoutputinterface',
+    3 => 'symfony\\component\\console\\output\\output',
+    4 => 'symfony\\component\\console\\output\\streamoutput',
+  ),
+  'symfony\\component\\console\\helper\\formatterhelper' => 
+  array (
+    0 => 'symfony\\component\\console\\helper\\helperinterface',
+    1 => 'symfony\\component\\console\\helper\\helper',
+  ),
+  'symfony\\component\\console\\helper\\helper' => 
+  array (
+    0 => 'symfony\\component\\console\\helper\\helperinterface',
+  ),
+  'symfony\\component\\console\\helper\\dialoghelper' => 
+  array (
+    0 => 'symfony\\component\\console\\helper\\helperinterface',
+    1 => 'symfony\\component\\console\\helper\\helper',
+  ),
+  'symfony\\component\\console\\formatter\\outputformatterstyle' => 
+  array (
+    0 => 'symfony\\component\\console\\formatter\\outputformatterstyleinterface',
+  ),
+  'symfony\\component\\console\\formatter\\outputformatter' => 
+  array (
+    0 => 'symfony\\component\\console\\formatter\\outputformatterinterface',
+  ),
+  'symfony\\component\\console\\input\\arrayinput' => 
+  array (
+    0 => 'symfony\\component\\console\\input\\inputinterface',
+    1 => 'symfony\\component\\console\\input\\input',
+  ),
+  'symfony\\component\\console\\input\\input' => 
+  array (
+    0 => 'symfony\\component\\console\\input\\inputinterface',
+  ),
+  'symfony\\component\\console\\input\\argvinput' => 
+  array (
+    0 => 'symfony\\component\\console\\input\\inputinterface',
+    1 => 'symfony\\component\\console\\input\\input',
+  ),
+  'symfony\\component\\console\\input\\stringinput' => 
+  array (
+    0 => 'symfony\\component\\console\\input\\inputinterface',
+    1 => 'symfony\\component\\console\\input\\input',
+    2 => 'symfony\\component\\console\\input\\argvinput',
+  ),
+  'symfony\\component\\console\\command\\listcommand' => 
+  array (
+    0 => 'symfony\\component\\console\\command\\command',
+  ),
+  'symfony\\component\\console\\command\\helpcommand' => 
+  array (
+    0 => 'symfony\\component\\console\\command\\command',
+  ),
+  'symfony\\component\\finder\\comparator\\numbercomparator' => 
+  array (
+    0 => 'symfony\\component\\finder\\comparator\\comparator',
+  ),
+  'symfony\\component\\finder\\comparator\\datecomparator' => 
+  array (
+    0 => 'symfony\\component\\finder\\comparator\\comparator',
+  ),
+  'symfony\\component\\finder\\iterator\\filecontentfilteriterator' => 
+  array (
+    0 => 'symfony\\component\\finder\\iterator\\multiplepcrefilteriterator',
+  ),
+  'symfony\\component\\finder\\iterator\\filenamefilteriterator' => 
+  array (
+    0 => 'symfony\\component\\finder\\iterator\\multiplepcrefilteriterator',
   ),
   'notoj\\file' => 
   array (

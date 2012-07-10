@@ -1,7 +1,7 @@
 <?php
 /*
   +---------------------------------------------------------------------------------+
-  | Copyright (c) 2012 César Rodas and Meneame SL                                   |
+  | Copyright (c) 2012 César Rodas and Menéame Comunicacions S.L.                   |
   +---------------------------------------------------------------------------------+
   | Redistribution and use in source and binary forms, with or without              |
   | modification, are permitted provided that the following conditions are met:     |
@@ -34,45 +34,29 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
-namespace Haanga2\Compiler;
+namespace Haanga2\Compiler\Parser;
 
-class Optimizer
+use Haanga2\Compiler\Dumper;
+
+class Tag
 {
+    protected $value;
 
-    public function optimize(Array $tree)
+    public function __construct($name, $args, Array $body = array())
     {
-        $tree = $this->optimizeEcho($tree);
-        return array_values($tree);
+        $this->name = $name;
+        $this->args = $args;
+        $this->body = $body;
     }
 
-    public function optimizeEcho($tree)
+    public function generate(Dumper $vm)
     {
-        $total = count($tree);
-        for($i = 0; $i < $total; $i++) {
-            if ($tree[$i] instanceof Parser\DoPrint) {
-                $print  = &$tree[$i++];
-                $values = array();
-                for (; $i < $total; $i++) {
-                    if (!($tree[$i] instanceof Parser\DoPrint)) {
-                        break;
-                    }
-                    $values[] = $tree[$i]->getValue();
-                    unset($tree[$i]);
-                }
-                if (count($values) > 0) {
-                    $expr = array($print->getValue());
-                    foreach ($values as $value) {
-                        if (!($value instanceof Parser\Term\String)) {
-                            $value = new Parser\Expr($value);
-                        }
-                        $expr[] = '~';
-                        $expr[] = $value;
-                    }
-                    $print->setValue(Parser\Expr::FromArray($expr));
-                }
-            }
+        $tag = $vm->getTag($this->name);
+        if (!$tag['block'] && count($this->body) > 0) {
+            throw new \RuntimeException("Tag {$this->name} is not a block but it has a body");
         }
-        return $tree;
+        require_once $tag['file'];
+        call_user_func($tag['callback'], $vm, $this->args, $this->body);
     }
 
 }
