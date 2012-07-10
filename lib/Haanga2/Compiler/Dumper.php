@@ -49,7 +49,7 @@ class Dumper
     protected $opt;
     protected $ext;
 
-    public function __construct(Optimizer $opt, Extension $ext)
+    public function __construct(Optimizer $opt, Extension $ext = NULL)
     {
         $this->opt = $opt;
         $this->ext = $ext;
